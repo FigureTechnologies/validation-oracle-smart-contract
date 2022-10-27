@@ -1,0 +1,33 @@
+[package]
+name = "validation-oracle-smart-contract"
+version = "0.1.0"
+edition = "2021"
+
+exclude = [
+    "validation_oracle_smart_contract.wasm",
+    "checksums.txt",
+    "checksums_intermediate.txt",
+]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+#bech32 = "=0.9.1"
+provwasm-std = { version = "=1.1.0" }
+cosmwasm-std = { version = "=1.1.5" }
+cosmwasm-storage = { version = "=1.1.5" }
+cw-storage-plus = "=0.16.0"
+os-gateway-contract-attributes = "=1.0.1"
+result-extensions = "=1.0.2"
+schemars = "=0.8.11"
+semver = "=1.0.14"
+serde = { version = "=1.0.145", default-features = false, features = ["derive"] }
+serde-json-wasm = { version = "=0.4.1" }
+thiserror = { version = "=1.0.37" }
+#uuid = "=0.8.2"
+
+[dev-dependencies]
+provwasm-mocks = { version = "=1.1.0" }
+cosmwasm-schema = { version = "=1.1.5" }
+#uuid = { version = "=0.8.2", features = ["v4"] }

@@ -1,0 +1,4 @@
+# Rust output
+/target
+/artifacts
+/schema
