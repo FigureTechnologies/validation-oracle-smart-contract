@@ -69,9 +69,10 @@ jobs:
           out-type: Xml
           args: '--ignore-config --ignore-tests'
 
-      - name: Archive Code Coverage Results
-        uses: actions/upload-artifact@v3
+      # TODO: Add test report publishing
+
+      - name: Upload coverage reports
         if: env.RUN_CODE_COVERAGE == 'true'
+        uses: codecov/codecov-action@v3
         with:
-          name: code-coverage-report
-          path: cobertura.xml
+          files: cobertura.xml
