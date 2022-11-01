@@ -40,6 +40,7 @@ pub fn query(deps: Deps<ProvenanceQuery>, _env: Env, msg: QueryMsg) -> QueryResu
     }
 }
 
+#[entry_point]
 pub fn migrate(deps: DepsMut<ProvenanceQuery>, _env: Env, msg: MigrateMsg) -> ContractResult {
     match msg {
         MigrateMsg::ContractUpgrade {} => migrate_contract(deps),

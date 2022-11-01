@@ -7,7 +7,7 @@ OPTIMIZER_IMAGE := cosmwasm/rust-optimizer
 OPTIMIZER_DOCKER_TAG := 0.12.9
 
 .PHONY: all
-all: clean fmt lint test schema optimize
+all: clean fmt lint test schema docs optimize
 
 .PHONY: dev
 dev: fmt lint test schema
@@ -33,7 +33,9 @@ build:
 test:
 	@cargo test
 
-### TODO: Add cargo docs rule
+.PHONY: docs
+docs:
+	@cargo doc
 
 .PHONY: schema
 schema:
