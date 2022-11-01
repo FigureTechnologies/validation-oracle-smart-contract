@@ -2,6 +2,7 @@ use crate::execute::create_request::create_request_for_validation;
 use crate::execute::update_settings::update_settings;
 use crate::instantiate::instantiate_contract;
 use crate::migrate::migrate_contract;
+use crate::query::get_info::query_contract_info;
 use crate::query::get_request::query_request;
 use crate::types::core::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
 use crate::util::aliases::{ContractResult, QueryResult};
@@ -36,7 +37,8 @@ pub fn execute(
 #[entry_point]
 pub fn query(deps: Deps<ProvenanceQuery>, _env: Env, msg: QueryMsg) -> QueryResult {
     match msg {
-        QueryMsg::GetRequestOrder { id } => query_request(deps, id),
+        QueryMsg::QueryRequestOrder { id } => query_request(&deps, id),
+        QueryMsg::QueryContractInfo {} => query_contract_info(deps.storage),
     }
 }
 
