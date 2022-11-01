@@ -11,3 +11,14 @@ pub struct AccessRoute {
     /// to label it for external resources to identify it.
     pub name: Option<String>,
 }
+impl AccessRoute {
+    pub fn get_route(&self) -> &str {
+        &self.route
+    }
+    pub fn maybe_get_name(&self) -> Option<&str> {
+        self.name.as_deref()
+    }
+    pub fn get_name(&self) -> &str {
+        self.name.as_ref().unwrap()
+    }
+}

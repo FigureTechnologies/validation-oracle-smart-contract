@@ -11,3 +11,17 @@ pub struct ValidationDefinition {
     pub validators: Vec<ValidatorConfiguration>,
     pub enabled: bool,
 }
+impl ValidationDefinition {
+    pub fn get_validation_type(&self) -> &str {
+        &self.validation_type
+    }
+    pub fn maybe_get_display_name(&self) -> Option<&str> {
+        self.display_name.as_deref()
+    }
+    pub fn get_display_name(&self) -> &str {
+        self.display_name.as_ref().unwrap()
+    }
+    pub fn get_validators(&self) -> &[ValidatorConfiguration] {
+        &self.validators
+    }
+}

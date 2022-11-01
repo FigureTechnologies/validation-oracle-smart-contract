@@ -12,3 +12,8 @@ pub struct ValidationCost {
     pub denom: String,
     pub destination: EntityDetail,
 }
+impl ValidationCost {
+    pub fn get_denom(&self) -> &str {
+        &self.denom
+    }
+}

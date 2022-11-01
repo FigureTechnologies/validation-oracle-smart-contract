@@ -10,6 +10,14 @@ pub struct AccessDefinition {
     pub access_routes: Vec<AccessRoute>,
     pub definition_type: AccessDefinitionType,
 }
+impl AccessDefinition {
+    pub fn get_owner_address(&self) -> &str {
+        &self.owner_address
+    }
+    pub fn get_access_routes(&self) -> &[AccessRoute] {
+        &self.access_routes
+    }
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
