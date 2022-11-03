@@ -1,10 +1,12 @@
+use super::aliases::DepsMutC;
 use crate::types::request::validation_request::{
     ValidationRequestCreationType, ValidationRequestOrder,
 };
 use crate::types::{core::error::ContractError, request::validation_request::ValidationRequest};
 use crate::util::request_fee::generate_request_fee_msg;
-use cosmwasm_std::{CosmosMsg, DepsMut, Env, MessageInfo};
-use provwasm_std::{ProvenanceMsg, ProvenanceQuery};
+
+use cosmwasm_std::{CosmosMsg, Env, MessageInfo};
+use provwasm_std::ProvenanceMsg;
 use result_extensions::ResultExtensions;
 
 pub struct ValidationRequestCreationResponse {
@@ -14,7 +16,7 @@ pub struct ValidationRequestCreationResponse {
 }
 
 pub fn form_validation_request(
-    deps: &DepsMut<ProvenanceQuery>,
+    deps: &DepsMutC,
     env: &Env,
     info: &MessageInfo,
     request: ValidationRequest,

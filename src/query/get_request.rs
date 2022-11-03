@@ -1,9 +1,11 @@
-use crate::{storage::request_storage::may_get_request_by_id, types::core::error::ContractError};
-use cosmwasm_std::{to_binary, Binary, Deps};
-use provwasm_std::ProvenanceQuery;
+use crate::{
+    storage::request_storage::may_get_request_by_id,
+    util::aliases::{DepsC, QueryResult},
+};
+use cosmwasm_std::to_binary;
 use result_extensions::ResultExtensions;
 
-pub fn query_request(deps: &Deps<ProvenanceQuery>, id: String) -> Result<Binary, ContractError> {
+pub fn query_request(deps: &DepsC, id: String) -> QueryResult {
     to_binary(&may_get_request_by_id(deps.storage, id))?.to_ok()
 }
 

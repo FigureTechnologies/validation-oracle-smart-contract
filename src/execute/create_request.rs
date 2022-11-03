@@ -5,21 +5,20 @@ use crate::{
         request::validation_request::{ValidationRequest, ValidationRequestCreationType},
     },
     util::{
-        aliases::ContractResult,
+        aliases::{DepsMutC, EntryPointResponse},
         create_request_utilities::{form_validation_request, ValidationRequestCreationResponse},
         provenance::get_custom_fee_amount_display,
     },
 };
-use cosmwasm_std::{to_binary, DepsMut, Env, MessageInfo, Response};
-use provwasm_std::ProvenanceQuery;
+use cosmwasm_std::{to_binary, Env, MessageInfo, Response};
 use result_extensions::ResultExtensions;
 
 pub fn create_request_for_validation(
-    deps: DepsMut<ProvenanceQuery>,
+    deps: DepsMutC,
     env: Env,
     info: MessageInfo,
     request: ValidationRequest,
-) -> ContractResult {
+) -> EntryPointResponse {
     // Check if request with same ID already exists
     if get_request_by_id(deps.storage, request.get_id()).is_ok() {
         return ContractError::ExistingId {

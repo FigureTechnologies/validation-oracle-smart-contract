@@ -1,4 +1,4 @@
-use crate::types::core::error::ContractError;
+use crate::{types::core::error::ContractError, util::aliases::ContractResult};
 use cosmwasm_std::{Addr, Storage, Uint128};
 use cw_storage_plus::Item;
 use schemars::JsonSchema;
@@ -40,7 +40,7 @@ impl ContractInfo {
 pub fn set_contract_info(
     storage: &mut dyn Storage,
     contract_info: &ContractInfo,
-) -> Result<(), ContractError> {
+) -> ContractResult<()> {
     CONTRACT_INFO
         .save(storage, contract_info)
         .map_err(|e| ContractError::StorageError {
@@ -48,7 +48,7 @@ pub fn set_contract_info(
         })
 }
 
-pub fn get_contract_info(storage: &dyn Storage) -> Result<ContractInfo, ContractError> {
+pub fn get_contract_info(storage: &dyn Storage) -> ContractResult<ContractInfo> {
     CONTRACT_INFO
         .load(storage)
         .map_err(|e| ContractError::StorageError {

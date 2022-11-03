@@ -74,7 +74,7 @@ provenanced tx name bind \
 
 ### Store the optimized contract WASM file to the chain — you'll need to copy the artifact to the provenance directory or change the path specified in the example command below
 provenanced tx wasm store validation_oracle.wasm \
-    --instantiate-only-address "$ADMIN_ACCOUNT" \
+    --instantiate-anyof-addresses "$ADMIN_ACCOUNT" \
     --from "$ADMIN_ACCOUNT" \
     --keyring-backend test \
     --home build/node0 \
@@ -116,26 +116,4 @@ provenanced query wasm list-contract-by-code 1 -t -o json | jq
 VO_CONTRACT=$(provenanced query wasm list-contract-by-code 1 -t -o json | jq -r '.contracts[0]')
 
 ### Ensure that querying the contract with a valid JSON query works — this should return {"data":null} at this point
-provenanced query wasm contract-state smart "$VO_CONTRACT" '{"get_request_order":{"id": ""}}' -t -o json | jq
-
-##### Scenario 1 — Storing to and querying the state of the contract
-
-### 1. Create a valid request for validation
-provenanced tx wasm execute "$VO_CONTRACT" \
-    '{ "request_validation": { "request": { "id": "12345", "scopes": ["scope1qqqtl0d4s2y59t5gwhj0mvsmwgxs20h2jc"], "quote": [] }}}' \
-    --amount 3000nhash \
-    --fees 382000000nhash \
-    --from loan-originator \
-    --keyring-backend test \
-    --home build/node0 \
-    --chain-id chain-local \
-    --broadcast-mode block \
-    --yes \
-    --testnet \
-    --output json | jq
-
-### 2. Examine the new balance of the originator account
-provenanced q bank balances "$ORIGINATOR_ACCOUNT" -t -o json | jq
-
-### 3. Query for the request we just created
-provenanced query wasm contract-state smart "$VO_CONTRACT" '{"get_request_order":{"id": "12345"}}' -t -o json | jq
+provenanced query wasm contract-state smart "$VO_CONTRACT" '{"query_request_order":{"id": ""}}' -t -o json | jq

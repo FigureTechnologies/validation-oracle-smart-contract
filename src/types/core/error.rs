@@ -12,6 +12,13 @@ pub enum ContractError {
     #[error("Invalid instantation: {message}")]
     InvalidInstantiation { message: String },
 
+    /// A generic error that specifies that some form of provided or utilized coin was invalid.
+    #[error("Invalid funds: {message}")]
+    InvalidFunds {
+        /// Denotes the reason that invalid funds were detected.
+        message: String,
+    },
+
     #[error("Invalid request: {message}")]
     InvalidRequest { message: String },
 
@@ -27,6 +34,22 @@ pub enum ContractError {
     #[error("Missing fields: {fields:?}")]
     MissingFields { fields: String },
 
+    /// An error that occurs when a unique key is violated during an attempt to add new data to the
+    /// contract's internal storage.  Reference: [state](super::state).
+    #[error("Existing record found: {explanation}")]
+    RecordAlreadyExists {
+        /// A free-form text description of the reason that the record already exists.
+        explanation: String,
+    },
+
+    /// Occurs when a mandatory data lookup is performed on the contract's internal storage, but
+    /// the required value is not found.  Reference: [state](super::state).
+    #[error("Record not found: {explanation}")]
+    RecordNotFound {
+        /// A free-form text description of the record that could not be found.
+        explanation: String,
+    },
+
     #[error("{0}")]
     SemVerError(#[from] semver::Error),
 
@@ -36,6 +59,6 @@ pub enum ContractError {
     #[error("Contact storage error occurred: {message}")]
     StorageError { message: String },
 
-    #[error("Unauthorized")]
-    Unauthorized,
+    #[error("Unauthorized: {reason}")]
+    Unauthorized { reason: String },
 }

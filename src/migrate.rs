@@ -2,14 +2,12 @@ use crate::storage::contract_info::{
     get_contract_info, set_contract_info, ContractInfo, CONTRACT_TYPE, CONTRACT_VERSION,
 };
 use crate::types::core::error::ContractError;
-use cosmwasm_std::{to_binary, DepsMut, Response};
-use provwasm_std::{ProvenanceMsg, ProvenanceQuery};
+use crate::util::aliases::{DepsMutC, EntryPointResponse};
+use cosmwasm_std::{to_binary, Response};
 use result_extensions::ResultExtensions;
 use semver::Version;
 
-pub fn migrate_contract(
-    deps: DepsMut<ProvenanceQuery>,
-) -> Result<Response<ProvenanceMsg>, ContractError> {
+pub fn migrate_contract(deps: DepsMutC) -> EntryPointResponse {
     let mut contract_info = get_contract_info(deps.storage)?;
     check_valid_migration_target(&contract_info)?;
     contract_info.contract_version = CONTRACT_VERSION.to_string();

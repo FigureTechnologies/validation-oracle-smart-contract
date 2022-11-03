@@ -1,19 +1,17 @@
+use cosmwasm_std::Addr;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub struct EntityDetail {
-    pub address: String,
+    pub address: Addr,
     pub name: Option<String>,
     pub description: Option<String>,
     pub home_url: Option<String>,
     pub source_url: Option<String>,
 }
 impl EntityDetail {
-    pub fn get_address(&self) -> &str {
-        &self.address
-    }
     pub fn maybe_get_name(&self) -> Option<&str> {
         self.name.as_deref()
     }

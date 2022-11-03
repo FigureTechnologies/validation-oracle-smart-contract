@@ -1,5 +1,6 @@
 use crate::types::request::{
-    settings_update::SettingsUpdate, validation_request::ValidationRequest,
+    settings_update::SettingsUpdate, validation_definition::ValidationDefinitionCreationRequest,
+    validation_request::ValidationRequest,
 };
 use cosmwasm_std::Uint128;
 use schemars::JsonSchema;
@@ -15,13 +16,21 @@ pub struct InstantiateMsg {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ExecuteMsg {
-    RequestValidation { request: ValidationRequest },
-    UpdateSettings { update: SettingsUpdate },
+    CreateValidationDefinition {
+        request: ValidationDefinitionCreationRequest,
+    },
+    RequestValidation {
+        request: ValidationRequest,
+    },
+    UpdateSettings {
+        update: SettingsUpdate,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum QueryMsg {
+    QueryValidationDefinition { key: String },
     QueryRequestOrder { id: String },
     QueryContractInfo {},
 }

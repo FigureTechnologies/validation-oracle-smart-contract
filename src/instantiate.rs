@@ -1,12 +1,13 @@
 use crate::storage::contract_info::{get_contract_info, set_contract_info, ContractInfo};
 use crate::types::core::error::ContractError;
 use crate::types::core::msg::InstantiateMsg;
-use cosmwasm_std::{DepsMut, Env, MessageInfo, Response};
-use provwasm_std::{bind_name, NameBinding, ProvenanceMsg, ProvenanceQuery};
+use crate::util::aliases::DepsMutC;
+use cosmwasm_std::{Env, MessageInfo, Response};
+use provwasm_std::{bind_name, NameBinding, ProvenanceMsg};
 use result_extensions::ResultExtensions;
 
 pub fn instantiate_contract(
-    deps: DepsMut<ProvenanceQuery>,
+    deps: DepsMutC,
     env: Env,
     info: MessageInfo,
     msg: InstantiateMsg,

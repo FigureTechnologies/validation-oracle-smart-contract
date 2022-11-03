@@ -1,32 +1,31 @@
 use crate::execute::create_request::create_request_for_validation;
+use crate::execute::create_validation_definition::create_validation_definition;
 use crate::execute::update_settings::update_settings;
 use crate::instantiate::instantiate_contract;
 use crate::migrate::migrate_contract;
 use crate::query::get_info::query_contract_info;
 use crate::query::get_request::query_request;
+use crate::query::get_validation_definition::query_validation_definition;
 use crate::types::core::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
-use crate::util::aliases::{ContractResult, QueryResult};
-use cosmwasm_std::{entry_point, Deps, DepsMut, Env, MessageInfo};
-use provwasm_std::ProvenanceQuery;
+use crate::util::aliases::{DepsC, DepsMutC, EntryPointResponse, QueryResult};
+use cosmwasm_std::{entry_point, Env, MessageInfo};
 
 #[entry_point]
 pub fn instantiate(
-    deps: DepsMut<ProvenanceQuery>,
+    deps: DepsMutC,
     env: Env,
     info: MessageInfo,
     msg: InstantiateMsg,
-) -> ContractResult {
+) -> EntryPointResponse {
     instantiate_contract(deps, env, info, msg)
 }
 
 #[entry_point]
-pub fn execute(
-    deps: DepsMut<ProvenanceQuery>,
-    env: Env,
-    info: MessageInfo,
-    msg: ExecuteMsg,
-) -> ContractResult {
+pub fn execute(deps: DepsMutC, env: Env, info: MessageInfo, msg: ExecuteMsg) -> EntryPointResponse {
     match msg {
+        ExecuteMsg::CreateValidationDefinition { request } => {
+            create_validation_definition(deps, env, info, request)
+        }
         ExecuteMsg::RequestValidation { request } => {
             create_request_for_validation(deps, env, info, request)
         }
@@ -35,15 +34,16 @@ pub fn execute(
 }
 
 #[entry_point]
-pub fn query(deps: Deps<ProvenanceQuery>, _env: Env, msg: QueryMsg) -> QueryResult {
+pub fn query(deps: DepsC, _env: Env, msg: QueryMsg) -> QueryResult {
     match msg {
         QueryMsg::QueryRequestOrder { id } => query_request(&deps, id),
+        QueryMsg::QueryValidationDefinition { key } => query_validation_definition(&deps, key),
         QueryMsg::QueryContractInfo {} => query_contract_info(deps.storage),
     }
 }
 
 #[entry_point]
-pub fn migrate(deps: DepsMut<ProvenanceQuery>, _env: Env, msg: MigrateMsg) -> ContractResult {
+pub fn migrate(deps: DepsMutC, _env: Env, msg: MigrateMsg) -> EntryPointResponse {
     match msg {
         MigrateMsg::ContractUpgrade {} => migrate_contract(deps),
     }

@@ -1,17 +1,19 @@
+use crate::types::{
+    validation_definition::ValidationDefinition, validator_configuration::ValidatorConfiguration,
+};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use super::validator_configuration::ValidatorConfiguration;
-
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
-pub struct ValidationDefinition {
+pub struct ValidationDefinitionCreationRequest {
     pub validation_type: String,
     pub display_name: Option<String>,
     pub validators: Vec<ValidatorConfiguration>,
-    pub enabled: bool,
+    pub enabled: Option<bool>,
+    pub bind_name: Option<bool>,
 }
-impl ValidationDefinition {
+impl ValidationDefinitionCreationRequest {
     pub fn get_validation_type(&self) -> &str {
         &self.validation_type
     }
@@ -24,7 +26,14 @@ impl ValidationDefinition {
     pub fn get_validators(&self) -> &[ValidatorConfiguration] {
         &self.validators
     }
-    pub fn storage_key(&self) -> String {
-        self.validation_type.to_lowercase()
+}
+impl From<ValidationDefinitionCreationRequest> for ValidationDefinition {
+    fn from(request: ValidationDefinitionCreationRequest) -> Self {
+        ValidationDefinition {
+            validation_type: request.validation_type,
+            display_name: request.display_name,
+            validators: request.validators,
+            enabled: request.enabled.unwrap_or(true),
+        }
     }
 }

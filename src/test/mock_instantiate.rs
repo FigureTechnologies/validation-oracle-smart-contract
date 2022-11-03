@@ -1,8 +1,8 @@
 use crate::instantiate::instantiate_contract;
 use crate::types::core::msg::InstantiateMsg;
+use crate::util::aliases::DepsMutC;
 use cosmwasm_std::testing::{mock_env, mock_info};
-use cosmwasm_std::{DepsMut, Uint128};
-use provwasm_std::ProvenanceQuery;
+use cosmwasm_std::Uint128;
 
 pub const DEFAULT_ADMIN_ADDRESS: &str = "contract_admin";
 pub const DEFAULT_CONTRACT_BIND_NAME: &str = "contract_bind_name";
@@ -35,11 +35,11 @@ impl TestInstantiate {
     }
 }
 
-pub fn default_instantiate(deps: DepsMut<ProvenanceQuery>) {
+pub fn default_instantiate(deps: DepsMutC) {
     test_instantiate(deps, TestInstantiate::default())
 }
 
-pub fn test_instantiate(deps: DepsMut<ProvenanceQuery>, instantiate: TestInstantiate) {
+pub fn test_instantiate(deps: DepsMutC, instantiate: TestInstantiate) {
     instantiate_contract(
         deps,
         mock_env(),
