@@ -1,16 +1,15 @@
 use crate::{types::core::error::ContractError, util::aliases::ContractResult};
+use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, Storage, Uint128};
 use cw_storage_plus::Item;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 
 pub const CONTRACT_TYPE: &str = env!("CARGO_CRATE_NAME");
 pub const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
-const NAMESPACE_CONTRACT_INFO: &str = concat!("contract_info_", env!("CARGO_PKG_VERSION")); // Alternative: use crate const_concat
 
+const NAMESPACE_CONTRACT_INFO: &str = concat!("contract_info_", env!("CARGO_PKG_VERSION")); // Alternative: use crate const_concat
 const CONTRACT_INFO: Item<ContractInfo> = Item::new(NAMESPACE_CONTRACT_INFO);
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
+#[cw_serde]
 pub struct ContractInfo {
     pub admin: Addr,
     pub bind_name: String,
@@ -72,7 +71,7 @@ mod tests {
         default_instantiate, DEFAULT_ADMIN_ADDRESS, DEFAULT_CONTRACT_BIND_NAME,
         DEFAULT_CONTRACT_NAME,
     };
-    use cosmwasm_std::Addr;
+    use cosmwasm_std::{Addr, Uint128};
 
     #[test]
     pub fn set_contract_info_with_valid_data() {
@@ -99,6 +98,7 @@ mod tests {
                 assert_eq!(contract_info.contract_name, DEFAULT_CONTRACT_NAME);
                 assert_eq!(contract_info.contract_type, CONTRACT_TYPE);
                 assert_eq!(contract_info.contract_version, CONTRACT_VERSION);
+                assert_eq!(contract_info.create_request_nhash_fee, Uint128::zero());
             }
             result => panic!("unexpected error: {:?}", result),
         }
@@ -111,7 +111,7 @@ mod tests {
             may_get_contract_info(deps.as_ref().storage).is_none(),
             "contract info should not load when it has not yet been stored",
         );
-        default_instantiate(deps.as_mut());
+        default_instantiate(deps.as_mut()).unwrap();
         assert!(
             may_get_contract_info(deps.as_ref().storage).is_some(),
             "contract info should be available after instantiation",

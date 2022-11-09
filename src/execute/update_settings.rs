@@ -2,6 +2,7 @@ use crate::storage::contract_info::{get_contract_info, set_contract_info};
 use crate::types::core::error::ContractError;
 use crate::types::request::settings_update::SettingsUpdate;
 use crate::util::aliases::DepsMutC;
+
 use cosmwasm_std::{MessageInfo, Response};
 use provwasm_std::ProvenanceMsg;
 use result_extensions::ResultExtensions;

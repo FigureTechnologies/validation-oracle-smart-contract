@@ -2,6 +2,7 @@ use crate::{
     storage::request_storage::may_get_request_by_id,
     util::aliases::{DepsC, QueryResult},
 };
+
 use cosmwasm_std::to_binary;
 use result_extensions::ResultExtensions;
 

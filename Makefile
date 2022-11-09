@@ -1,4 +1,6 @@
 #!/usr/bin/make -f
+MAKEFLAGS += -rR
+
 CONTAINER_RUNTIME := $(shell which docker 2>/dev/null || which podman 2>/dev/null)
 
 ### Use cosmwasm/rust-optimizer-arm64 on M1 Macs (https://hub.docker.com/r/cosmwasm/rust-optimizer-arm64)
@@ -7,10 +9,10 @@ OPTIMIZER_IMAGE := cosmwasm/rust-optimizer
 OPTIMIZER_DOCKER_TAG := 0.12.9
 
 .PHONY: all
-all: clean fmt lint test schema docs optimize
+all: clean build fmt lint test schema docs optimize
 
 .PHONY: dev
-dev: fmt lint test schema
+dev: build fmt lint test schema
 
 .PHONY: clean
 clean:

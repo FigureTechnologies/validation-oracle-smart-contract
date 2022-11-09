@@ -3,10 +3,16 @@ use crate::storage::contract_info::{
 };
 use crate::types::core::error::ContractError;
 use crate::util::aliases::{DepsMutC, EntryPointResponse};
+
 use cosmwasm_std::{to_binary, Response};
 use result_extensions::ResultExtensions;
 use semver::Version;
 
+/// The main entrypoint function for running a code migration.  Referred to in the [contract file](crate::contract).
+///
+/// # Parameters
+///
+/// * `deps` A mutable dependencies object provided by cosmwasm in the migrate entrypoint.
 pub fn migrate_contract(deps: DepsMutC) -> EntryPointResponse {
     let mut contract_info = get_contract_info(deps.storage)?;
     check_valid_migration_target(&contract_info)?;
@@ -19,6 +25,12 @@ pub fn migrate_contract(deps: DepsMutC) -> EntryPointResponse {
         .to_ok()
 }
 
+/// Verifies that the migration is going to a proper version and the contract name of the new wasm matches
+/// the value in the Cargo.toml.
+///
+/// # Parameters
+///
+/// * `contract_info` A reference to the contract's existing stored information.
 fn check_valid_migration_target(contract_info: &ContractInfo) -> Result<(), ContractError> {
     // Prevent other contracts from being migrated over this one
     if CONTRACT_TYPE != contract_info.contract_type {

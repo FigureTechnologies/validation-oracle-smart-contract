@@ -2,6 +2,7 @@ use crate::{
     storage::validation_definition::may_get_validation_definition,
     util::aliases::{DepsC, QueryResult},
 };
+
 use cosmwasm_std::to_binary;
 use result_extensions::ResultExtensions;
 

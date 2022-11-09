@@ -1,11 +1,10 @@
 use crate::types::{
     validation_definition::ValidationDefinition, validator_configuration::ValidatorConfiguration,
 };
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+use cosmwasm_schema::cw_serde;
+
+#[cw_serde]
 pub struct ValidationDefinitionCreationRequest {
     pub validation_type: String,
     pub display_name: Option<String>,

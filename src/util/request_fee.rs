@@ -1,11 +1,11 @@
+use super::aliases::DepsC;
 use crate::storage::contract_info::{get_contract_info, ContractInfo};
 use crate::types::core::error::ContractError;
 use crate::util::constants::NHASH;
+
 use cosmwasm_std::{coin, Addr, CosmosMsg};
 use provwasm_std::{assess_custom_fee, ProvenanceMsg};
 use result_extensions::ResultExtensions;
-
-use super::aliases::DepsC;
 
 pub fn generate_request_fee_msg<S: Into<String>, F: Fn(&ContractInfo) -> u128>(
     fee_type: S,

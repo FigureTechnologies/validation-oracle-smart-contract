@@ -1,12 +1,13 @@
 use crate::instantiate::instantiate_contract;
 use crate::types::core::msg::InstantiateMsg;
-use crate::util::aliases::DepsMutC;
+use crate::util::aliases::{DepsMutC, EntryPointResponse};
+
 use cosmwasm_std::testing::{mock_env, mock_info};
 use cosmwasm_std::Uint128;
 
 pub const DEFAULT_ADMIN_ADDRESS: &str = "contract_admin";
-pub const DEFAULT_CONTRACT_BIND_NAME: &str = "contract_bind_name";
-pub const DEFAULT_CONTRACT_NAME: &str = "contract_name";
+pub const DEFAULT_CONTRACT_BIND_NAME: &str = "contract-bindname";
+pub const DEFAULT_CONTRACT_NAME: &str = "VO Contract Name";
 pub const DEFAULT_REQUEST_CREATION_FEE: Uint128 = Uint128::zero();
 
 pub struct TestInstantiate {
@@ -35,16 +36,15 @@ impl TestInstantiate {
     }
 }
 
-pub fn default_instantiate(deps: DepsMutC) {
+pub fn default_instantiate(deps: DepsMutC) -> EntryPointResponse {
     test_instantiate(deps, TestInstantiate::default())
 }
 
-pub fn test_instantiate(deps: DepsMutC, instantiate: TestInstantiate) {
+pub fn test_instantiate(deps: DepsMutC, instantiate: TestInstantiate) -> EntryPointResponse {
     instantiate_contract(
         deps,
         mock_env(),
         mock_info(&instantiate.admin_address, &[]),
         instantiate.to_instantiate_msg(),
     )
-    .expect("expected instantiation to succeed");
 }

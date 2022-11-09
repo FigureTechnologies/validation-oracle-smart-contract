@@ -2,6 +2,8 @@ use crate::storage::contract_info::{get_contract_info, set_contract_info, Contra
 use crate::types::core::error::ContractError;
 use crate::types::core::msg::InstantiateMsg;
 use crate::util::aliases::DepsMutC;
+use crate::util::event_attributes::{EventAttributes, EventType};
+
 use cosmwasm_std::{Env, MessageInfo, Response};
 use provwasm_std::{bind_name, NameBinding, ProvenanceMsg};
 use result_extensions::ResultExtensions;
@@ -29,11 +31,9 @@ pub fn instantiate_contract(
 
     Response::new()
         .add_message(bind_name_msg)
-        .add_attribute(
-            "contract_info",
-            format!("{:?}", get_contract_info(deps.storage)?),
-        )
-        .add_attribute("action", "init")
+        .add_attributes(EventAttributes::new(EventType::InstantiateContract(
+            get_contract_info(deps.storage)?,
+        )))
         .to_ok()
 }
 
@@ -56,4 +56,31 @@ fn validate_instantiate_msg(msg: &InstantiateMsg) -> Result<(), ContractError> {
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use provwasm_mocks::mock_dependencies;
+
+    use crate::{
+        test::{
+            cosmos_type_helpers::single_attribute_for_key,
+            mock_instantiate::{test_instantiate, TestInstantiate},
+        },
+        util::constants::EVENT_TYPE_KEY,
+    };
+
+    #[test]
+    fn test_valid_default_instantiate() {
+        let mut deps = mock_dependencies(&[]);
+        let response = test_instantiate(deps.as_mut(), TestInstantiate::default())
+            .expect("the default instantiate should produce a response without error");
+        assert_eq!(
+            2,
+            response.attributes.len(),
+            "a single attribute should be emitted"
+        );
+        assert_eq!(
+            "instantiate_contract",
+            single_attribute_for_key(&response, EVENT_TYPE_KEY),
+            "the proper event type should be emitted",
+        );
+    }
+}

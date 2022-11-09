@@ -1,7 +1,5 @@
 use super::aliases::DepsMutC;
-use crate::types::request::validation_request::{
-    ValidationRequestCreationType, ValidationRequestOrder,
-};
+use crate::types::request::validation_request::ValidationRequestOrder;
 use crate::types::{core::error::ContractError, request::validation_request::ValidationRequest};
 use crate::util::request_fee::generate_request_fee_msg;
 
@@ -20,18 +18,13 @@ pub fn form_validation_request(
     env: &Env,
     info: &MessageInfo,
     request: ValidationRequest,
-    creation_type: ValidationRequestCreationType,
 ) -> Result<ValidationRequestCreationResponse, ContractError> {
-    let request_fee_msg = match &creation_type {
-        ValidationRequestCreationType::New => generate_request_fee_msg(
-            "request creation",
-            &deps.as_ref(),
-            env.contract.address.clone(),
-            |c| c.create_request_nhash_fee.u128(),
-        )?,
-        // Updates do not charge creation fees
-        ValidationRequestCreationType::Update { .. } => None,
-    };
+    let request_fee_msg = generate_request_fee_msg(
+        "validation request creation",
+        &deps.as_ref(),
+        env.contract.address.clone(),
+        |c| c.create_request_nhash_fee.u128(),
+    )?;
     let messages = vec![];
     let request_order = ValidationRequestOrder {
         id: request.id,

@@ -8,8 +8,22 @@ use crate::query::get_request::query_request;
 use crate::query::get_validation_definition::query_validation_definition;
 use crate::types::core::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
 use crate::util::aliases::{DepsC, DepsMutC, EntryPointResponse, QueryResult};
+
 use cosmwasm_std::{entry_point, Env, MessageInfo};
 
+/// The entry point used when an external address instantiates a stored code wasm payload of this
+/// contract on the Provenance Blockchain.
+///
+/// # Parameters
+///
+/// * `deps` A mutable dependencies object provided by the cosmwasm framework.  Allows access to useful
+/// resources like the contract's internal storage and a querier to retrieve blockchain objects.
+/// * `env` An environment object provided by the cosmwasm framework.  Describes the contract's
+/// details, as well as blockchain information at the time of the transaction.
+/// * `info` A message information object provided by the cosmwasm framework.  Describes the sender
+/// of the instantiation message, as well as the funds provided as an amount during the transaction.
+/// * `msg` A custom instantiation message defined by this contract for creating the initial
+/// configuration used by the contract.
 #[entry_point]
 pub fn instantiate(
     deps: DepsMutC,
@@ -33,6 +47,19 @@ pub fn execute(deps: DepsMutC, env: Env, info: MessageInfo, msg: ExecuteMsg) -> 
     }
 }
 
+/// The entry point used when an external address desires to retrieve information from the contract.
+/// Allows access to the internal storage information, as well as scope attributes emitted by the
+/// onboarding process.
+///
+/// # Parameters
+///
+/// * `deps` An immutable dependencies object provided by the cosmwasm framework.  Allows access to useful
+/// resources like the contract's internal storage and a querier to retrieve blockchain objects.
+/// * `_env` An environment object provided by the cosmwasm framework.  Describes the contract's
+/// details, as well as blockchain information at the time of the transaction.  Unused by this
+/// function, but required by cosmwasm for successful query entrypoint.
+/// * `msg` A custom query message enum defined by this contract to allow multiple different results
+/// to be determined for this route.
 #[entry_point]
 pub fn query(deps: DepsC, _env: Env, msg: QueryMsg) -> QueryResult {
     match msg {
@@ -42,6 +69,19 @@ pub fn query(deps: DepsC, _env: Env, msg: QueryMsg) -> QueryResult {
     }
 }
 
+/// The entry point used when migrating a live contract instance to a new code instance, or to
+/// refresh the contract with an existing matching codebase for the purpose of running migration
+/// options.
+///
+/// # Parameters
+///
+/// * `deps` A mutable dependencies object provided by the cosmwasm framework.  Allows access to useful
+/// resources like the contract's internal storage and a querier to retrieve blockchain objects.
+/// * `_env` An environment object provided by the cosmwasm framework.  Describes the contract's
+/// details, as well as blockchain information at the time of the transaction.  Unused by this
+/// function, but required by cosmwasm for successful migration entrypoint.
+/// * `msg` A custom migrate message enum defined by this contract to allow multiple different
+/// results of invoking the migrate endpoint.
 #[entry_point]
 pub fn migrate(deps: DepsMutC, _env: Env, msg: MigrateMsg) -> EntryPointResponse {
     match msg {

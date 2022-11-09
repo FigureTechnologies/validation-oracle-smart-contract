@@ -1,9 +1,7 @@
+use cosmwasm_schema::cw_serde;
 use cosmwasm_std::Addr;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
 pub struct EntityDetail {
     pub address: Addr,
     pub name: Option<String>,

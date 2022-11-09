@@ -1,15 +1,13 @@
 use crate::{
     storage::request_storage::{get_request_by_id, insert_request},
-    types::{
-        core::error::ContractError,
-        request::validation_request::{ValidationRequest, ValidationRequestCreationType},
-    },
+    types::{core::error::ContractError, request::validation_request::ValidationRequest},
     util::{
         aliases::{DepsMutC, EntryPointResponse},
         create_request_utilities::{form_validation_request, ValidationRequestCreationResponse},
         provenance::get_custom_fee_amount_display,
     },
 };
+
 use cosmwasm_std::{to_binary, Env, MessageInfo, Response};
 use result_extensions::ResultExtensions;
 
@@ -32,13 +30,7 @@ pub fn create_request_for_validation(
         request_order,
         messages,
         request_fee_msg,
-    } = form_validation_request(
-        &deps,
-        &env,
-        &info,
-        request,
-        ValidationRequestCreationType::New,
-    )?;
+    } = form_validation_request(&deps, &env, &info, request)?;
     // Insert the request
     insert_request(deps.storage, &request_order)?;
     // Create and return a response

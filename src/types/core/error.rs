@@ -35,7 +35,7 @@ pub enum ContractError {
     MissingFields { fields: String },
 
     /// An error that occurs when a unique key is violated during an attempt to add new data to the
-    /// contract's internal storage.  Reference: [state](super::state).
+    /// contract's internal storage.  Reference: [storage](crate::storage).
     #[error("Existing record found: {explanation}")]
     RecordAlreadyExists {
         /// A free-form text description of the reason that the record already exists.
@@ -43,7 +43,7 @@ pub enum ContractError {
     },
 
     /// Occurs when a mandatory data lookup is performed on the contract's internal storage, but
-    /// the required value is not found.  Reference: [state](super::state).
+    /// the required value is not found.  Reference: [storage](crate::storage).
     #[error("Record not found: {explanation}")]
     RecordNotFound {
         /// A free-form text description of the record that could not be found.

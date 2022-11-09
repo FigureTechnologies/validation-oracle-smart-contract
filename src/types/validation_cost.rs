@@ -1,11 +1,9 @@
-use cosmwasm_std::Uint128;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-
 use super::entity::EntityDetail;
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+use cosmwasm_schema::cw_serde;
+use cosmwasm_std::Uint128;
+
+#[cw_serde]
 pub struct ValidationCost {
     //pub fee: Coin,
     pub amount: Uint128,

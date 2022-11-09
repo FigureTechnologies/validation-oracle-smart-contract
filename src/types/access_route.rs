@@ -1,8 +1,6 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use cosmwasm_schema::cw_serde;
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
 pub struct AccessRoute {
     /// A path to a resource that can provide underlying asset data for a scope.  Can be anything:
     /// http path, grpc, etc.
