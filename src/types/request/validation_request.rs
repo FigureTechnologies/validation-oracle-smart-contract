@@ -1,3 +1,5 @@
+use std::fmt::{Display, Formatter, Result};
+
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, Coin};
 
@@ -45,6 +47,23 @@ pub struct ValidationRequestOrder {
     /// The status of the validation request.
     pub status: ValidationRequestStatus,
 }
+impl ValidationRequestOrder {
+    pub fn get_id(&self) -> &str {
+        &self.id
+    }
+    pub fn get_scopes(&self) -> &[Addr] {
+        &self.scopes
+    }
+    pub fn maybe_get_allowed_validators(&self) -> Option<&[Addr]> {
+        self.allowed_validators.as_deref()
+    }
+    pub fn get_allowed_validators(&self) -> &[Addr] {
+        self.allowed_validators.as_ref().unwrap()
+    }
+    pub fn get_quote(&self) -> &[Coin] {
+        &self.quote
+    }
+}
 
 /// The status of a [ValidationRequestOrder].
 #[cw_serde]
@@ -57,4 +76,13 @@ pub enum ValidationRequestStatus {
     Pending,
     /// Denotes a validation request which has had its results submitted.
     Fulfilled,
+}
+impl Display for ValidationRequestStatus {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        match self {
+            ValidationRequestStatus::Requested => write!(f, "requested"),
+            ValidationRequestStatus::Pending => write!(f, "pending"),
+            ValidationRequestStatus::Fulfilled => write!(f, "fulfilled"),
+        }
+    }
 }

@@ -1,33 +1,42 @@
 use super::constants::{
     ASSET_TYPE_KEY, CONTRACT_INFO_KEY, EVENT_TYPE_KEY, NEW_VALUE_KEY, RESULTS_SCOPE_ADDRESS_KEY,
-    VALIDATION_TYPE_KEY, VALIDATOR_ADDRESS_KEY,
+    VALIDATION_REQUEST_ID_KEY, VALIDATION_STATUS_KEY, VALIDATION_TYPE_KEY, VALIDATOR_ADDRESS_KEY,
 };
-use crate::{storage::contract_info::ContractInfo, util::constants::ADDITIONAL_METADATA_KEY};
+use crate::{
+    storage::contract_info::ContractInfo,
+    types::request::validation_request::ValidationRequestOrder,
+    util::constants::ADDITIONAL_METADATA_KEY,
+};
+
 use std::collections::HashMap;
 
 /// An enum that contains all different event types that can occur throughout the [contract's](crate::contract)
 /// routes.
 #[derive(Clone, Debug)]
-pub enum EventType {
+pub enum EventType<'a> {
     /// Occurs when the contract is [instantiated](crate::contract::instantiate) with [instantiate](crate::instantiate).
-    InstantiateContract(ContractInfo),
+    InstantiateContract(&'a ContractInfo),
     /// Occurs when the contract is [migrated](crate::contract::migrate) with [migrate](crate::migrate).
     MigrateContract,
     /// Occurs when the contract is [executed](crate::contract::execute) to [create a validation definition](crate::execute::create_validation_definition).
     AddValidationDefiniton,
+    /// Occurs when the contract is [executed](crate::contract::execute) to [create a validation request](crate::execute::create_request).
+    AddValidationRequest(&'a ValidationRequestOrder),
 }
 #[allow(clippy::from_over_into)]
-impl Into<String> for EventType {
+impl Into<String> for EventType<'_> {
+    // TODO: Think about Into<String> versus Display
     fn into(self) -> String {
         match self {
             EventType::InstantiateContract(_) => "instantiate_contract",
             EventType::MigrateContract => "migrate_contract",
             EventType::AddValidationDefiniton => "add_validation_definition",
+            EventType::AddValidationRequest(_) => "create_validation_request",
         }
         .into()
     }
 }
-impl EventType {
+impl EventType<'_> {
     /// Utilizes the implementation of Into<String> to automatically derive the event name.  This
     /// allows an invocation without an explicit type declaration.
     pub fn event_name(self) -> String {
@@ -51,11 +60,19 @@ impl EventAttributes {
     pub fn new(event_type: EventType) -> Self {
         let mut attributes = vec![(EVENT_TYPE_KEY.into(), event_type.clone().event_name())];
         let maybe_associated_attribute = match event_type {
+            // TODO: Does this match have to return a vec instead of an array?
             EventType::InstantiateContract(contract_info) => {
-                Some([(CONTRACT_INFO_KEY.into(), format!("{:?}", contract_info))])
+                Some([(CONTRACT_INFO_KEY.into(), format!("{:?}", contract_info))].to_vec())
             }
             EventType::MigrateContract => None,
             EventType::AddValidationDefiniton => None,
+            EventType::AddValidationRequest(request) => Some(
+                [
+                    (VALIDATION_REQUEST_ID_KEY.into(), request.get_id().into()),
+                    (VALIDATION_STATUS_KEY.into(), request.status.to_string()),
+                ]
+                .to_vec(),
+            ),
         };
         if let Some(associated_attribute) = maybe_associated_attribute {
             attributes.extend_from_slice(&associated_attribute);

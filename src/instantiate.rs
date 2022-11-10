@@ -47,7 +47,7 @@ pub fn instantiate_contract(
     Response::new()
         .add_message(bind_name_msg)
         .add_attributes(EventAttributes::new(EventType::InstantiateContract(
-            get_contract_info(deps.storage)?,
+            &get_contract_info(deps.storage)?,
         )))
         .to_ok()
 }

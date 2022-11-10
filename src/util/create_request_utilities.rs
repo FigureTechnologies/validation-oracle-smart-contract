@@ -1,7 +1,7 @@
 use super::aliases::DepsMutC;
+use super::fees::generate_contract_fee_msg;
 use crate::types::request::validation_request::{ValidationRequestOrder, ValidationRequestStatus};
 use crate::types::{core::error::ContractError, request::validation_request::ValidationRequest};
-use crate::util::request_fee::generate_contract_fee_msg;
 
 use cosmwasm_std::{CosmosMsg, Env, MessageInfo};
 use provwasm_std::ProvenanceMsg;

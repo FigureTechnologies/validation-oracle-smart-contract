@@ -7,7 +7,7 @@ use cosmwasm_std::Storage;
 use cw_storage_plus::{Index, IndexList, IndexedMap, MultiIndex};
 use result_extensions::ResultExtensions;
 
-/// The primary key prefix for the storage of [ValidationRequestOrder] in a [MultiIndex].
+/// The primary key prefix for the storage of [ValidationRequestOrder]s in a [MultiIndex].
 const NAMESPACE_REQUEST_PK: &str = "request";
 /// The prefix in the [RequestIndices] for indexing [ValidationRequestOrder]s by their ID.
 const NAMESPACE_VALIDATION_REQUEST_IDX: &str = "request__request";

@@ -4,7 +4,8 @@ use crate::{
     util::{
         aliases::{DepsMutC, EntryPointResponse},
         create_request_utilities::{form_validation_request, ValidationRequestCreationResponse},
-        provenance::get_custom_fee_amount_display,
+        event_attributes::{EventAttributes, EventType},
+        fees::get_custom_fee_amount_display,
     },
 };
 
@@ -36,8 +37,9 @@ pub fn create_request_for_validation(
     // Create and return a response
     let mut response = Response::new()
         .add_messages(messages)
-        .add_attribute("action", "create_request")
-        .add_attribute("request_id", &request_order.id)
+        .add_attributes(EventAttributes::new(EventType::AddValidationRequest(
+            &request_order,
+        )))
         .set_data(to_binary(&request_order)?);
     if let Some(request_fee_msg) = request_fee_msg {
         response = response

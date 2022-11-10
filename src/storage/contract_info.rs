@@ -6,9 +6,12 @@ use cw_storage_plus::Item;
 pub const CONTRACT_TYPE: &str = env!("CARGO_CRATE_NAME");
 pub const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
+/// The namespace for the storage of the [ContractInfo].
 const NAMESPACE_CONTRACT_INFO: &str = concat!("contract_info_", env!("CARGO_PKG_VERSION")); // Alternative: use crate const_concat
+/// The contract's storage of the singleton [ContractInfo].
 const CONTRACT_INFO: Item<ContractInfo> = Item::new(NAMESPACE_CONTRACT_INFO);
 
+/// The configuration data for the contract.
 #[cw_serde]
 pub struct ContractInfo {
     pub admin: Addr,

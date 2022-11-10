@@ -7,9 +7,11 @@ use cosmwasm_std::Storage;
 use cw_storage_plus::Map;
 use result_extensions::ResultExtensions;
 
+/// The namespace for the storage of [ValidationDefinition]s in a [Map].
 const NAMESPACE_VALIDATION_DEFINITIONS: &str = // TODO: Investigate further
     concat!("validation_definitions_", env!("CARGO_PKG_VERSION")); // Alternative: use crate const_concat
 
+/// The contract's storage of [ValidationDefinition]s.
 const VALIDATION_DEFINITIONS: Map<String, ValidationDefinition> =
     Map::new(NAMESPACE_VALIDATION_DEFINITIONS);
 
