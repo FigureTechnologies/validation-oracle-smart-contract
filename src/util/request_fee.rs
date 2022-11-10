@@ -7,7 +7,20 @@ use cosmwasm_std::{coin, Addr, CosmosMsg};
 use provwasm_std::{assess_custom_fee, ProvenanceMsg};
 use result_extensions::ResultExtensions;
 
-pub fn generate_request_fee_msg<S: Into<String>, F: Fn(&ContractInfo) -> u128>(
+/// Generates a fee paid to the contract as payment for usage of the contract.
+/// The fee is sent to the contract's admin address so that the admin is funded
+/// for the purposes of making their own requests to the contract.
+///
+/// # Parameters
+///
+/// * `fee_type` A string description of the fee being charged
+/// * `deps` A dependencies object provided by the cosmwasm framework.  Allows access to useful
+/// resources like the contract's internal storage and a querier to retrieve blockchain objects.
+/// * `contract_addr` The bech32 Provenance address of the contract iself, to facilitate the
+/// contract charging the fee to the sender of a request.
+/// * `fee_calculation` A function to calculate the [nhash](NHASH) fee to charge the request
+/// sender given the contract state.
+pub fn generate_contract_fee_msg<S: Into<String>, F: Fn(&ContractInfo) -> u128>(
     fee_type: S,
     deps: &DepsC,
     contract_addr: Addr,

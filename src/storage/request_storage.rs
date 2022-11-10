@@ -1,14 +1,19 @@
-use crate::types::{
-    core::error::ContractError, request::validation_request::ValidationRequestOrder,
+use crate::{
+    types::{core::error::ContractError, request::validation_request::ValidationRequestOrder},
+    util::aliases::ContractResult,
 };
 
 use cosmwasm_std::Storage;
 use cw_storage_plus::{Index, IndexList, IndexedMap, MultiIndex};
 use result_extensions::ResultExtensions;
 
+/// The primary key prefix for the storage of [ValidationRequestOrder] in a [MultiIndex].
 const NAMESPACE_REQUEST_PK: &str = "request";
+/// The prefix in the [RequestIndices] for indexing [ValidationRequestOrder]s by their ID.
 const NAMESPACE_VALIDATION_REQUEST_IDX: &str = "request__request";
 
+/// Defines a collection of [MultiIndex]s for storing [ValidationRequestOrder]s in
+/// a shared [primary key namespace](NAMESPACE_REQUEST_PK).
 pub struct RequestIndices<'a> {
     pub request_index: MultiIndex<'a, String, ValidationRequestOrder, String>,
 }
@@ -21,6 +26,7 @@ impl<'a> IndexList<ValidationRequestOrder> for RequestIndices<'a> {
     }
 }
 
+/// Returns the contract's storage of validation requests.
 pub fn requests<'a>() -> IndexedMap<'a, &'a [u8], ValidationRequestOrder, RequestIndices<'a>> {
     let indices = RequestIndices {
         request_index: MultiIndex::new(
@@ -32,10 +38,16 @@ pub fn requests<'a>() -> IndexedMap<'a, &'a [u8], ValidationRequestOrder, Reques
     IndexedMap::new(NAMESPACE_REQUEST_PK, indices)
 }
 
+/// Inserts a validation request into the contract's storage.
+///
+/// # Parameters
+///
+/// * `storage` A mutable reference to the contract's internal storage.
+/// * `request` The validation request to insert.
 pub fn insert_request(
     storage: &mut dyn Storage,
     request: &ValidationRequestOrder,
-) -> Result<(), ContractError> {
+) -> ContractResult<()> {
     let state = requests();
     if let Ok(existing_request) = state.load(storage, request.id.as_bytes()) {
         return ContractError::StorageError {
@@ -46,10 +58,16 @@ pub fn insert_request(
     store_request(storage, request)
 }
 
+/// Updates an existing validation request within the contract's storage.
+///
+/// # Parameters
+///
+/// * `storage` A mutable reference to the contract's internal storage.
+/// * `request` The new validation request to replace the one in storage with the same ID.
 pub fn update_request(
     storage: &mut dyn Storage,
     request: &ValidationRequestOrder,
-) -> Result<(), ContractError> {
+) -> ContractResult<()> {
     let state = requests();
     if state.load(storage, request.id.as_bytes()).is_ok() {
         delete_request_by_id(storage, &request.id)?;
@@ -65,15 +83,29 @@ pub fn update_request(
     }
 }
 
+/// Stores a validation request into the contract's storage, overwriting
+/// any existing validation request with the same ID.
+///
+/// # Parameters
+///
+/// * `storage` A mutable reference to the contract's internal storage.
+/// * `request` The validation request to store.
 fn store_request(
     storage: &mut dyn Storage,
     request: &ValidationRequestOrder,
-) -> Result<(), ContractError> {
+) -> ContractResult<()> {
     requests()
         .replace(storage, request.id.as_bytes(), Some(request), None)?
         .to_ok()
 }
 
+/// Finds a validation request by its ID, returning an [Option]
+/// reflecting whether a matching request was found or not.
+///
+/// # Parameters
+///
+/// * `storage` A mutable reference to the contract's internal storage.
+/// * `id` The ID of the validation request to search for.
 pub fn may_get_request_by_id<S: Into<String>>(
     storage: &dyn Storage,
     id: S,
@@ -83,10 +115,17 @@ pub fn may_get_request_by_id<S: Into<String>>(
         .unwrap_or(None)
 }
 
+/// Finds a validation request by its ID, returning a [Result]
+/// reflecting whether a matching request was found or not.
+///
+/// # Parameters
+///
+/// * `storage` A mutable reference to the contract's internal storage.
+/// * `id` The ID of the validation request to search for.
 pub fn get_request_by_id<S: Into<String>>(
     storage: &dyn Storage,
     id: S,
-) -> Result<ValidationRequestOrder, ContractError> {
+) -> ContractResult<ValidationRequestOrder> {
     let id = id.into();
     requests()
         .load(storage, id.as_bytes())
@@ -98,6 +137,7 @@ pub fn get_request_by_id<S: Into<String>>(
         })
 }
 
+// TODO: Adapt this into functions for retrieving requests by fields other than the ID
 // pub fn get_requests_by_collateral_id<S: Into<String>>(
 //     storage: &dyn Storage,
 //     collateral_id: S,
@@ -112,10 +152,17 @@ pub fn get_request_by_id<S: Into<String>>(
 //         .collect()
 // }
 
+/// Deletes a validation request by its ID, returning a [Result]
+/// reflecting whether a matching request was found or not.
+///
+/// # Parameters
+///
+/// * `storage` A mutable reference to the contract's internal storage.
+/// * `id` The ID of the validation request to search for.
 pub fn delete_request_by_id<S: Into<String>>(
     storage: &mut dyn Storage,
     id: S,
-) -> Result<(), ContractError> {
+) -> ContractResult<()> {
     let id = id.into();
     requests()
         .remove(storage, id.as_bytes())

@@ -1,19 +1,34 @@
 use crate::storage::contract_info::{get_contract_info, set_contract_info, ContractInfo};
 use crate::types::core::error::ContractError;
 use crate::types::core::msg::InstantiateMsg;
-use crate::util::aliases::DepsMutC;
+use crate::util::aliases::{ContractResult, DepsMutC, EntryPointResponse};
 use crate::util::event_attributes::{EventAttributes, EventType};
+use crate::util::helpers::check_funds_are_empty;
 
 use cosmwasm_std::{Env, MessageInfo, Response};
-use provwasm_std::{bind_name, NameBinding, ProvenanceMsg};
+use provwasm_std::{bind_name, NameBinding};
 use result_extensions::ResultExtensions;
 
+/// The main functionality executed when the smart contract is first instantiated. This creates
+/// the internal [contract state](crate::storage::contract_info::ContractInfo) value.
+///
+/// # Parameters
+///
+/// * `deps` A dependencies object provided by the cosmwasm framework.  Allows access to useful
+/// resources like the contract's internal storage and a querier to retrieve blockchain objects.
+/// * `env` An environment object provided by the cosmwasm framework.  Describes the contract's
+/// details, as well as blockchain information at the time of the transaction.
+/// * `info` A message information object provided by the cosmwasm framework.  Describes the sender
+/// of the instantiation message, as well as the funds provided as an amount during the transaction.
+/// * `msg` A custom instantiation message defined by this contract for creating the initial
+/// configuration used by the contract.
 pub fn instantiate_contract(
     deps: DepsMutC,
     env: Env,
     info: MessageInfo,
     msg: InstantiateMsg,
-) -> Result<Response<ProvenanceMsg>, ContractError> {
+) -> EntryPointResponse {
+    check_funds_are_empty(&info)?;
     validate_instantiate_msg(&msg)?;
     let contract_info = ContractInfo::new(
         info.sender,
@@ -37,7 +52,13 @@ pub fn instantiate_contract(
         .to_ok()
 }
 
-fn validate_instantiate_msg(msg: &InstantiateMsg) -> Result<(), ContractError> {
+/// Checks that a given contract instantation is valid.
+///
+/// # Parameters
+///
+/// * `msg` The custom instantiation message defined by this contract for creating the initial
+/// configuration used by the contract.
+fn validate_instantiate_msg(msg: &InstantiateMsg) -> ContractResult<()> {
     let mut errors = vec![];
     if msg.bind_name.is_empty() {
         errors.push("bind_name value was empty");

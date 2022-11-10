@@ -708,8 +708,6 @@ dependencies = [
  "result-extensions",
  "schemars",
  "semver",
- "serde",
- "serde-json-wasm",
  "thiserror",
 ]
 

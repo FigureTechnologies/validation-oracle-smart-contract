@@ -34,6 +34,22 @@ pub fn instantiate(
     instantiate_contract(deps, env, info, msg)
 }
 
+/// The entry point used when an external address desires to initiate a process defined in the
+/// contract. This defines the primary purposes of this contract, like requesting validation or
+/// submitting validation results, as well as allowing the administrator address to make changes
+/// to the contract's internal configuration.
+///
+/// # Parameters
+///
+/// * `deps` A dependencies object provided by the cosmwasm framework.  Allows access to useful
+/// resources like the contract's internal storage and a querier to retrieve blockchain objects.
+/// * `env` An environment object provided by the cosmwasm framework.  Describes the contract's
+/// details, as well as blockchain information at the time of the transaction.
+/// * `info` A message information object provided by the cosmwasm framework.  Describes the sender
+/// of the instantiation message, as well as the funds provided as an amount during the transaction.
+/// * `msg` A custom execution message enum defined by this contract to allow multiple different
+/// processes to be defined for the singular execution route entry point allowed by the
+/// cosmwasm framework.
 #[entry_point]
 pub fn execute(deps: DepsMutC, env: Env, info: MessageInfo, msg: ExecuteMsg) -> EntryPointResponse {
     match msg {

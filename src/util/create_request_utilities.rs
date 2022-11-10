@@ -1,7 +1,7 @@
 use super::aliases::DepsMutC;
 use crate::types::request::validation_request::ValidationRequestOrder;
 use crate::types::{core::error::ContractError, request::validation_request::ValidationRequest};
-use crate::util::request_fee::generate_request_fee_msg;
+use crate::util::request_fee::generate_contract_fee_msg;
 
 use cosmwasm_std::{CosmosMsg, Env, MessageInfo};
 use provwasm_std::ProvenanceMsg;
@@ -19,7 +19,7 @@ pub fn form_validation_request(
     info: &MessageInfo,
     request: ValidationRequest,
 ) -> Result<ValidationRequestCreationResponse, ContractError> {
-    let request_fee_msg = generate_request_fee_msg(
+    let request_fee_msg = generate_contract_fee_msg(
         "validation request creation",
         &deps.as_ref(),
         env.contract.address.clone(),

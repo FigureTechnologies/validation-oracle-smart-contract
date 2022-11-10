@@ -6,6 +6,11 @@ A smart contract which acts as a marketplace for validation to be requested from
 [stability-alpha]: https://img.shields.io/badge/stability-alpha-f4d03f.svg?style=for-the-badge
 [stability-info]: https://github.com/mkenney/software-guides/blob/master/STABILITY-BADGES.md#alpha
 ## Development
+### Toolchain
+This project has been tested and confirmed to work with
+- [Rust](https://www.rust-lang.org/tools/install) 1.65.0
+- [Provenance](https://github.com/provenance-io/provenance/blob/main/docs/Building.md) v1.12.2
+  - [Go](https://go.dev/dl/) v1.18.4
 ### Running a Local Demo
 1. Run `make` in the root of this repository to generate an optimized contract WASM file at `artifacts/validation_oracle_smart_contract.wasm`
 2. if you have not already done so, clone [Provenance](https://github.com/provenance-io/provenance/) and install its [prerequisites](https://github.com/provenance-io/provenance/blob/main/docs/Building.md)

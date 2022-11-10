@@ -11,6 +11,7 @@ pub struct InstantiateMsg {
     pub bind_name: String,
     pub contract_name: String,
     pub create_request_nhash_fee: Uint128,
+    // TODO: Add Option<Vec<ValidationDefinitionCreationRequest>> field
 }
 
 #[cw_serde]

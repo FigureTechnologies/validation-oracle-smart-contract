@@ -75,12 +75,12 @@ impl EventAttributes {
     /// * `event_type` All events should denote their type for external consumers of the Provenance
     /// Blockchain Event Stream, so this value is required for any new instance and appends the
     /// name of the event with the key of [EVENT_TYPE_KEY](super::constants::EVENT_TYPE_KEY).
-    /// * `asset_type` A unique key for a []()
-    /// that uses the key [ASSET_TYPE_KEY](super::constants::ASSET_TYPE_KEY).
-    /// * `validation_type` A unique key for an []()
-    /// that uses the key [VALIDATION_TYPE_KEY](super::constants::VALIDATION_TYPE_KEY).
-    /// * `scope_address` A unique key for an []()
-    /// that uses the key [RESULTS_SCOPE_ADDRESS_KEY](super::constants::RESULTS_SCOPE_ADDRESS_KEY).
+    /// * `asset_type` An enumerated value for the type of the asset(s) targeted for validation that are
+    /// associated with the event, keyed to [ASSET_TYPE_KEY](super::constants::ASSET_TYPE_KEY).
+    /// * `validation_type` An enumerated value for the type of validation associated with the event,
+    /// keyed to [VALIDATION_TYPE_KEY](super::constants::VALIDATION_TYPE_KEY).
+    /// * `scope_address` The bech32 address for the validation results scope associated with the event, keyed to
+    /// [RESULTS_SCOPE_ADDRESS_KEY](super::constants::RESULTS_SCOPE_ADDRESS_KEY).
     pub fn for_results_submission<T1: Into<String>, T2: Into<String>, T3: Into<String>>(
         event_type: EventType,
         asset_type: T1,
@@ -98,8 +98,8 @@ impl EventAttributes {
     ///
     /// # Parameters
     ///
-    /// * `asset_type` A unique key for a [)
-    /// that uses the key [ASSET_TYPE_KEY](super::constants::ASSET_TYPE_KEY).
+    /// * `asset_type` An enumerated value for the type of the asset(s) targeted for validation that are
+    /// associated with the event, keyed to [ASSET_TYPE_KEY](super::constants::ASSET_TYPE_KEY).
     pub fn set_asset_type<T: Into<String>>(mut self, asset_type: T) -> Self {
         self.attributes
             .push((ASSET_TYPE_KEY.into(), asset_type.into()));
@@ -111,35 +111,35 @@ impl EventAttributes {
     ///
     /// # Parameters
     ///
-    /// * `validation_type` A unique key for a []()
-    /// that uses the key [VALIDATION_TYPE_KEY](super::constants::VALIDATION_TYPE_KEY).
+    /// * `validation_type` An enumerated value for the type of validation associated with the event,
+    /// keyed to [VALIDATION_TYPE_KEY](super::constants::VALIDATION_TYPE_KEY).
     pub fn set_validation_type<T: Into<String>>(mut self, validation_type: T) -> Self {
         self.attributes
             .push((VALIDATION_TYPE_KEY.into(), validation_type.into()));
         self
     }
 
-    /// Appends a validation results' scope address bech32 value to an existing [EventAttributes](self::EventAttributes) and
+    /// Appends a validation results' bech32 scope address to an existing [EventAttributes](self::EventAttributes) and
     /// returns the same instance to create a functional chain for further attribute addition.
     ///
     /// # Parameters
     ///
-    /// * `scope_address` A unique key for a [)
-    /// that uses the key [RESULTS_SCOPE_ADDRESS_KEY](super::constants::RESULTS_SCOPE_ADDRESS_KEY).
+    /// * `scope_address` The bech32 address for the validation results scope associated with the event, keyed to
+    /// [RESULTS_SCOPE_ADDRESS_KEY](super::constants::RESULTS_SCOPE_ADDRESS_KEY).
     pub fn set_results_scope_address<T: Into<String>>(mut self, scope_address: T) -> Self {
         self.attributes
             .push((RESULTS_SCOPE_ADDRESS_KEY.into(), scope_address.into()));
         self
     }
 
-    /// Appends a verifier address bech32 value to an existing [EventAttributes](self::EventAttributes) and
+    // TODO: (1) Change the struct to use a map (2) support more than one validator handling a single request?
+    /// Appends a validator's bech32 address to an existing [EventAttributes](self::EventAttributes) and
     /// returns the same instance to create a functional chain for further attribute addition.
     ///
     /// # Parameters
     ///
-    /// * `validator_address` The [address]()
-    /// for a []()) that uses the
-    /// key [VALIDATOR_ADDRESS_KEY](super::constants::VALIDATOR_ADDRESS_KEY).
+    /// * `validator_address` The bech32 address for the validator associated with the event, keyed to
+    /// [VALIDATOR_ADDRESS_KEY](super::constants::VALIDATOR_ADDRESS_KEY).
     pub fn set_validator<T: Into<String>>(mut self, validator_address: T) -> Self {
         self.attributes
             .push((VALIDATOR_ADDRESS_KEY.into(), validator_address.into()));

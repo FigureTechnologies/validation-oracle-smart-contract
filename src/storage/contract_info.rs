@@ -111,7 +111,7 @@ mod tests {
             may_get_contract_info(deps.as_ref().storage).is_none(),
             "contract info should not load when it has not yet been stored",
         );
-        default_instantiate(deps.as_mut()).unwrap();
+        default_instantiate(deps.as_mut()).expect("default test instantiate should succeed");
         assert!(
             may_get_contract_info(deps.as_ref().storage).is_some(),
             "contract info should be available after instantiation",
