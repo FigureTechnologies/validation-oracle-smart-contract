@@ -1,5 +1,5 @@
 use super::aliases::DepsMutC;
-use crate::types::request::validation_request::ValidationRequestOrder;
+use crate::types::request::validation_request::{ValidationRequestOrder, ValidationRequestStatus};
 use crate::types::{core::error::ContractError, request::validation_request::ValidationRequest};
 use crate::util::request_fee::generate_contract_fee_msg;
 
@@ -32,6 +32,7 @@ pub fn form_validation_request(
         scopes: request.scopes,
         allowed_validators: request.allowed_validators,
         quote: request.quote,
+        status: ValidationRequestStatus::Requested,
     };
     validate_request_order(&request_order)?;
     ValidationRequestCreationResponse {

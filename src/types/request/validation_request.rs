@@ -42,9 +42,12 @@ pub struct ValidationRequestOrder {
     pub allowed_validators: Option<Vec<Addr>>,
     /// The quote the requestor is offering in exchange for completion of the request.
     pub quote: Vec<Coin>,
+    /// The status of the validation request.
+    pub status: ValidationRequestStatus,
 }
 
 /// The status of a [ValidationRequestOrder].
+#[cw_serde]
 pub enum ValidationRequestStatus {
     /// Denotes a validation request which has been submitted but not claimed or completed by any validator.
     Requested,
