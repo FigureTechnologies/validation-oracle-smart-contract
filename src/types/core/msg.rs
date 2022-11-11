@@ -4,7 +4,7 @@ use crate::types::request::{
 };
 
 use cosmwasm_schema::cw_serde;
-use cosmwasm_std::Uint128;
+use cosmwasm_std::{Addr, Uint128};
 
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -29,8 +29,10 @@ pub enum ExecuteMsg {
 
 #[cw_serde]
 pub enum QueryMsg {
-    QueryValidationDefinition { key: String },
-    QueryRequestOrder { id: String },
+    QueryValidationDefinitionByType { r#type: String },
+    QueryValidationRequestById { id: String },
+    QueryValidationRequestByOwner { owner: Addr },
+    QueryValidationRequestByValidator { validator: Addr },
     QueryContractInfo {},
 }
 

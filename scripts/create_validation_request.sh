@@ -18,4 +18,6 @@ provenanced tx wasm execute "$VO_CONTRACT" \
 provenanced q bank balances "$ORIGINATOR_ACCOUNT" -t -o json | jq
 
 ### 3. Query for the request we just created
-provenanced query wasm contract-state smart "$VO_CONTRACT" '{"query_request_order":{"id": "12345"}}' -t -o json | jq
+provenanced query wasm contract-state smart "$VO_CONTRACT" '{"query_validation_request_by_id":{"id": "12345"}}' -t -o json | jq
+
+provenanced query wasm contract-state smart "$VO_CONTRACT" "{\"query_validation_request_by_owner\":{\"owner\": \"$ORIGINATOR_ACCOUNT\"}}" -t -o json | jq

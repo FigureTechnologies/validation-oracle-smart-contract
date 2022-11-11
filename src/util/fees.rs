@@ -14,7 +14,7 @@ use result_extensions::ResultExtensions;
 /// # Parameters
 ///
 /// * `fee_type` A string description of the fee being charged
-/// * `deps` A dependencies object provided by the cosmwasm framework.  Allows access to useful
+/// * `deps` An immutable dependencies object provided by the cosmwasm framework.  Allows access to useful
 /// resources like the contract's internal storage and a querier to retrieve blockchain objects.
 /// * `contract_addr` The bech32 Provenance address of the contract iself, to facilitate the
 /// contract charging the fee to the sender of a request.

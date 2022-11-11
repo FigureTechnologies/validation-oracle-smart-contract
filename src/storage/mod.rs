@@ -1,3 +1,3 @@
 pub mod contract_info;
-pub mod request_storage;
+pub mod request;
 pub mod validation_definition;

@@ -3,9 +3,11 @@ use crate::execute::create_validation_definition::create_validation_definition;
 use crate::execute::update_settings::update_settings;
 use crate::instantiate::instantiate_contract;
 use crate::migrate::migrate_contract;
-use crate::query::get_info::query_contract_info;
-use crate::query::get_request::query_request;
-use crate::query::get_validation_definition::query_validation_definition;
+use crate::query::contract_info::query_contract_info;
+use crate::query::request::{
+    query_request_by_id, query_request_by_owner, query_request_by_validator,
+};
+use crate::query::validation_definition::query_definition_by_type;
 use crate::types::core::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
 use crate::util::aliases::{DepsC, DepsMutC, EntryPointResponse, QueryResult};
 
@@ -41,7 +43,7 @@ pub fn instantiate(
 ///
 /// # Parameters
 ///
-/// * `deps` A dependencies object provided by the cosmwasm framework.  Allows access to useful
+/// * `deps` A mutable dependencies object provided by the cosmwasm framework.  Allows access to useful
 /// resources like the contract's internal storage and a querier to retrieve blockchain objects.
 /// * `env` An environment object provided by the cosmwasm framework.  Describes the contract's
 /// details, as well as blockchain information at the time of the transaction.
@@ -79,8 +81,16 @@ pub fn execute(deps: DepsMutC, env: Env, info: MessageInfo, msg: ExecuteMsg) -> 
 #[entry_point]
 pub fn query(deps: DepsC, _env: Env, msg: QueryMsg) -> QueryResult {
     match msg {
-        QueryMsg::QueryRequestOrder { id } => query_request(&deps, id),
-        QueryMsg::QueryValidationDefinition { key } => query_validation_definition(&deps, key),
+        QueryMsg::QueryValidationDefinitionByType { r#type } => {
+            query_definition_by_type(deps.storage, r#type)
+        }
+        QueryMsg::QueryValidationRequestById { id } => query_request_by_id(deps.storage, id),
+        QueryMsg::QueryValidationRequestByOwner { owner } => {
+            query_request_by_owner(deps.storage, owner)
+        }
+        QueryMsg::QueryValidationRequestByValidator { validator } => {
+            query_request_by_validator(deps.storage, validator)
+        }
         QueryMsg::QueryContractInfo {} => query_contract_info(deps.storage),
     }
 }

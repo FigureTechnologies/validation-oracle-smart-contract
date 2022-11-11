@@ -8,7 +8,7 @@ use result_extensions::ResultExtensions;
 ///
 /// # Parameters
 ///
-/// * `deps` A dependencies object provided by the cosmwasm framework.  Allows access to useful
+/// * `deps` An immutable dependencies object provided by the cosmwasm framework.  Allows access to useful
 /// resources like the contract's internal storage and a querier to retrieve blockchain objects.
 /// * `info` A message information object provided by the cosmwasm framework.  Describes the sender
 /// of the instantiation message, as well as the funds provided as an amount during the transaction.

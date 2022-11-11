@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use super::constants::{
     ASSET_TYPE_KEY, CONTRACT_INFO_KEY, EVENT_TYPE_KEY, NEW_VALUE_KEY, RESULTS_SCOPE_ADDRESS_KEY,
     VALIDATION_REQUEST_ID_KEY, VALIDATION_STATUS_KEY, VALIDATION_TYPE_KEY, VALIDATOR_ADDRESS_KEY,
@@ -7,8 +9,6 @@ use crate::{
     types::request::validation_request::ValidationRequestOrder,
     util::constants::ADDITIONAL_METADATA_KEY,
 };
-
-use std::collections::HashMap;
 
 /// An enum that contains all different event types that can occur throughout the [contract's](crate::contract)
 /// routes.
@@ -58,18 +58,28 @@ impl EventAttributes {
     /// Blockchain Event Stream, so this value is required for any new instance and appends the
     /// name of the event with the key of [EVENT_TYPE_KEY](super::constants::EVENT_TYPE_KEY).
     pub fn new(event_type: EventType) -> Self {
-        let mut attributes = vec![(EVENT_TYPE_KEY.into(), event_type.clone().event_name())];
+        let mut attributes = vec![(EVENT_TYPE_KEY.to_string(), event_type.clone().event_name())];
         let maybe_associated_attribute = match event_type {
             // TODO: Does this match have to return a vec instead of an array?
-            EventType::InstantiateContract(contract_info) => {
-                Some([(CONTRACT_INFO_KEY.into(), format!("{:?}", contract_info))].to_vec())
-            }
+            EventType::InstantiateContract(contract_info) => Some(
+                [(
+                    CONTRACT_INFO_KEY.to_string(),
+                    format!("{:?}", contract_info),
+                )]
+                .to_vec(),
+            ),
             EventType::MigrateContract => None,
             EventType::AddValidationDefiniton => None,
             EventType::AddValidationRequest(request) => Some(
                 [
-                    (VALIDATION_REQUEST_ID_KEY.into(), request.get_id().into()),
-                    (VALIDATION_STATUS_KEY.into(), request.status.to_string()),
+                    (
+                        VALIDATION_REQUEST_ID_KEY.to_string(),
+                        request.get_id().to_string(),
+                    ),
+                    (
+                        VALIDATION_STATUS_KEY.to_string(),
+                        request.status.to_string(),
+                    ),
                 ]
                 .to_vec(),
             ),
@@ -119,7 +129,7 @@ impl EventAttributes {
     /// associated with the event, keyed to [ASSET_TYPE_KEY](super::constants::ASSET_TYPE_KEY).
     pub fn set_asset_type<T: Into<String>>(mut self, asset_type: T) -> Self {
         self.attributes
-            .push((ASSET_TYPE_KEY.into(), asset_type.into()));
+            .push((ASSET_TYPE_KEY.to_string(), asset_type.into()));
         self
     }
 
@@ -132,7 +142,7 @@ impl EventAttributes {
     /// keyed to [VALIDATION_TYPE_KEY](super::constants::VALIDATION_TYPE_KEY).
     pub fn set_validation_type<T: Into<String>>(mut self, validation_type: T) -> Self {
         self.attributes
-            .push((VALIDATION_TYPE_KEY.into(), validation_type.into()));
+            .push((VALIDATION_TYPE_KEY.to_string(), validation_type.into()));
         self
     }
 
@@ -145,7 +155,7 @@ impl EventAttributes {
     /// [RESULTS_SCOPE_ADDRESS_KEY](super::constants::RESULTS_SCOPE_ADDRESS_KEY).
     pub fn set_results_scope_address<T: Into<String>>(mut self, scope_address: T) -> Self {
         self.attributes
-            .push((RESULTS_SCOPE_ADDRESS_KEY.into(), scope_address.into()));
+            .push((RESULTS_SCOPE_ADDRESS_KEY.to_string(), scope_address.into()));
         self
     }
 
@@ -159,7 +169,7 @@ impl EventAttributes {
     /// [VALIDATOR_ADDRESS_KEY](super::constants::VALIDATOR_ADDRESS_KEY).
     pub fn set_validator<T: Into<String>>(mut self, validator_address: T) -> Self {
         self.attributes
-            .push((VALIDATOR_ADDRESS_KEY.into(), validator_address.into()));
+            .push((VALIDATOR_ADDRESS_KEY.to_string(), validator_address.into()));
         self
     }
 
@@ -185,7 +195,7 @@ impl EventAttributes {
     /// key [NEW_VALUE_KEY](super::constants::NEW_VALUE_KEY).
     pub fn set_new_value<T: ToString>(mut self, new_value: T) -> Self {
         self.attributes
-            .push((NEW_VALUE_KEY.into(), new_value.to_string()));
+            .push((NEW_VALUE_KEY.to_string(), new_value.to_string()));
         self
     }
 
@@ -205,7 +215,7 @@ impl EventAttributes {
         // Only append additional metadata if it actually has keys
         if additional_metadata.has_metadata() {
             self.attributes.push((
-                ADDITIONAL_METADATA_KEY.into(),
+                ADDITIONAL_METADATA_KEY.to_string(),
                 additional_metadata.get_meta_string(),
             ));
         }

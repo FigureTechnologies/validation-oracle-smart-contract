@@ -27,7 +27,7 @@ impl ValidationRequest {
 }
 
 /// A request for validation which is stored as a [queriable](crate::contract::query)
-/// item in the contract's [storage](crate::storage::request_storage) as the result
+/// item in the contract's [storage](crate::storage::request) as the result
 /// of [executing](crate::contract::execute) a [request for validation](ValidationRequest).
 #[cw_serde]
 pub struct ValidationRequestOrder {

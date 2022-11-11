@@ -6,6 +6,7 @@ use cw_storage_plus::Item;
 pub const CONTRACT_TYPE: &str = env!("CARGO_CRATE_NAME");
 pub const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
+// TODO: Investigate further how namespaces work with migrations and changing the string value
 /// The namespace for the storage of the [ContractInfo].
 const NAMESPACE_CONTRACT_INFO: &str = concat!("contract_info_", env!("CARGO_PKG_VERSION")); // Alternative: use crate const_concat
 /// The contract's storage of the singleton [ContractInfo].
@@ -77,10 +78,10 @@ mod tests {
     use cosmwasm_std::{Addr, Uint128};
 
     #[test]
-    pub fn set_contract_info_with_valid_data() {
+    pub fn set_and_get_contract_info_with_valid_data() {
         let mut deps = mock_dependencies(&[]);
         let result = set_contract_info(
-            &mut deps.storage,
+            deps.as_mut().storage,
             &ContractInfo::new(
                 Addr::unchecked(DEFAULT_ADMIN_ADDRESS),
                 DEFAULT_CONTRACT_BIND_NAME.to_string(),
@@ -90,20 +91,20 @@ mod tests {
         );
         match result {
             Ok(()) => {}
-            result => panic!("unexpected error: {:?}", result),
+            result => panic!("unexpected error inserting contract info: {:?}", result),
         }
 
         let contract_info = get_contract_info(&deps.storage);
         match contract_info {
             Ok(contract_info) => {
-                assert_eq!(contract_info.admin, Addr::unchecked("contract_admin"));
-                assert_eq!(contract_info.bind_name, DEFAULT_CONTRACT_BIND_NAME);
-                assert_eq!(contract_info.contract_name, DEFAULT_CONTRACT_NAME);
-                assert_eq!(contract_info.contract_type, CONTRACT_TYPE);
-                assert_eq!(contract_info.contract_version, CONTRACT_VERSION);
-                assert_eq!(contract_info.create_request_nhash_fee, Uint128::zero());
+                assert_eq!(Addr::unchecked("contract_admin"), contract_info.admin);
+                assert_eq!(DEFAULT_CONTRACT_BIND_NAME, contract_info.bind_name);
+                assert_eq!(DEFAULT_CONTRACT_NAME, contract_info.contract_name);
+                assert_eq!(CONTRACT_TYPE, contract_info.contract_type);
+                assert_eq!(CONTRACT_VERSION, contract_info.contract_version);
+                assert_eq!(Uint128::zero(), contract_info.create_request_nhash_fee);
             }
-            result => panic!("unexpected error: {:?}", result),
+            result => panic!("unexpected error retrieving contract info: {:?}", result),
         }
     }
 

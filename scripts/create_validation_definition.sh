@@ -16,4 +16,4 @@ provenanced tx wasm execute "$VO_CONTRACT" \
     --output json | jq
 
 ### 2. Query for the definition we just created
-provenanced query wasm contract-state smart "$VO_CONTRACT" '{"query_validation_definition":{"key": "lauramachelocfull"}}' -t -o json | jq
+provenanced query wasm contract-state smart "$VO_CONTRACT" '{"query_validation_definition_by_type":{"type": "lauramachelocfull"}}' -t -o json | jq

@@ -124,5 +124,5 @@ provenanced query wasm list-contract-by-code "$VO_CODE_ID" -t -o json | jq
 ### You'll need to adjust the jq command if you have more than one address returned from the previous command
 VO_CONTRACT=$(provenanced query wasm list-contract-by-code "$VO_CODE_ID" -t -o json | jq -r '.contracts[0]')
 
-### Ensure that querying the contract with a valid JSON query works — this should return {"data":null} at this point
-provenanced query wasm contract-state smart "$VO_CONTRACT" '{"query_request_order":{"id": ""}}' -t -o json | jq
+### Ensure that querying the contract works
+provenanced query wasm contract-state smart "$VO_CONTRACT" '{"query_contract_info":{}}' -t -o json | jq

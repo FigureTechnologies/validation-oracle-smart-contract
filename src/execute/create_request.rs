@@ -1,5 +1,5 @@
 use crate::{
-    storage::request_storage::{get_request_by_id, insert_request},
+    storage::request::{get_request_by_id, insert_request},
     types::{core::error::ContractError, request::validation_request::ValidationRequest},
     util::{
         aliases::{DepsMutC, EntryPointResponse},
