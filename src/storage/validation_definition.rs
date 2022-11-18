@@ -112,7 +112,6 @@ fn store_validation_definition(
             message: format!("{:?}", e),
         })
 }
-}
 
 /// Finds a validation definition from the contract's storage by its key,
 /// returning a [Result] reflecting whether the retrieval succeeded or not.
