@@ -4,7 +4,8 @@ use crate::{
     },
     types::request::validation_definition::ValidationDefinitionCreationRequest,
     util::{
-        aliases::{DepsMutC, EntryPointResponse},
+        aliases::{ContractResult, DepsC, DepsMutC, EntryPointResponse},
+        event_attributes::{EventAttributes, EventType},
         functions::generate_validation_definition_attribute_name,
         helpers::{check_admin_only, check_funds_are_empty},
     },
@@ -14,15 +15,14 @@ use cosmwasm_std::{Env, MessageInfo, Response};
 use provwasm_std::{bind_name, NameBinding};
 use result_extensions::ResultExtensions;
 
-pub fn create_validation_definition(
+pub fn create_new_validation_definition(
     deps: DepsMutC,
     env: Env,
     info: MessageInfo,
     request: ValidationDefinitionCreationRequest,
 ) -> EntryPointResponse {
     // Validate the request
-    check_admin_only(&deps.as_ref(), &info)?;
-    check_funds_are_empty(&info)?;
+    validate_request(&deps.as_ref(), &info, &request)?;
     // Store the definition
     insert_validation_definition(deps.storage, &request.clone().into())?;
 
@@ -40,10 +40,20 @@ pub fn create_validation_definition(
 
     Response::new()
         .add_messages(messages)
-        .add_attribute(
-            // TODO: Implement attributes wrapper which implements Into<Attributes>
-            "validation_type",
-            &request.validation_type,
+        .add_attributes(
+            EventAttributes::new(EventType::AddValidationDefiniton)
+                .set_validation_type(&request.validation_type),
         )
         .to_ok()
+}
+
+fn validate_request(
+    deps: &DepsC,
+    info: &MessageInfo,
+    _request: &ValidationDefinitionCreationRequest,
+) -> ContractResult<()> {
+    check_admin_only(deps, info)?;
+    check_funds_are_empty(info)?;
+    // TODO: Add regex check for validation_type being a valid name if bind_name isn't false, to preempt the provenance error with a more descriptive one
+    Ok(())
 }

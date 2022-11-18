@@ -5,8 +5,6 @@ pub const NHASH: &str = "nhash";
 
 ///// Shared output attributes
 
-// TODO: Briefly discuss if we want to keep the prefixes
-
 /// Value = Event Type correlating to EvenType enum into [String] values.
 pub const EVENT_TYPE_KEY: &str = "vo_event_type";
 /// Value = Scope UUID (String) of validation results.
@@ -29,5 +27,8 @@ pub const ADDITIONAL_METADATA_KEY: &str = "vo_additional_metadata";
 
 ///// Other output attributes
 
-/// Value = The current [contract state](crate::storage::contract_info::ContractInfo)
+/// Value = The current stored [ContractInfo](crate::storage::contract_info::ContractInfo).
 pub const CONTRACT_INFO_KEY: &str = "vo_contract_info";
+
+/// Value = The [address](cosmwasm_std::Addr) of one or more entities.
+pub const ENTITY_ADDRESSES_KEY: &str = "vo_entity_addresses";

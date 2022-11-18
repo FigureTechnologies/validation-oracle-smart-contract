@@ -2,6 +2,7 @@ use crate::storage::contract_info::{get_contract_info, set_contract_info};
 use crate::types::core::error::ContractError;
 use crate::types::request::settings_update::SettingsUpdate;
 use crate::util::aliases::DepsMutC;
+use crate::util::event_attributes::{EventAttributes, EventType};
 
 use cosmwasm_std::{MessageInfo, Response};
 use provwasm_std::ProvenanceMsg;
@@ -34,7 +35,7 @@ pub fn update_settings(
     // Save changes to the contract information
     set_contract_info(deps.storage, &contract_info)?;
     Response::new()
-        .add_attribute("action", "update_settings")
+        .add_attributes(EventAttributes::new(EventType::UpdateSettings))
         .add_attributes(attributes)
         .to_ok()
 }

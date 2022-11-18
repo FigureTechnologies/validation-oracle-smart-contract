@@ -1,9 +1,14 @@
-use crate::execute::create_request::create_request_for_validation;
-use crate::execute::create_validation_definition::create_validation_definition;
+use crate::execute::entity::{create_new_entity, update_existing_entity};
+use crate::execute::request::create_request_for_validation;
 use crate::execute::update_settings::update_settings;
+use crate::execute::validation_definition::create_new_validation_definition;
+use crate::execute::validator_configuration::{
+    create_new_validator_configuration, update_existing_validator_configuration,
+};
 use crate::instantiate::instantiate_contract;
 use crate::migrate::migrate_contract;
 use crate::query::contract_info::query_contract_info;
+use crate::query::entity::query_entity_by_address;
 use crate::query::request::{
     query_request_by_id, query_request_by_owner, query_request_by_validator,
 };
@@ -56,7 +61,15 @@ pub fn instantiate(
 pub fn execute(deps: DepsMutC, env: Env, info: MessageInfo, msg: ExecuteMsg) -> EntryPointResponse {
     match msg {
         ExecuteMsg::CreateValidationDefinition { request } => {
-            create_validation_definition(deps, env, info, request)
+            create_new_validation_definition(deps, env, info, request)
+        }
+        ExecuteMsg::CreateEntity { entity } => create_new_entity(deps, env, info, entity),
+        ExecuteMsg::UpdateEntity { entity } => update_existing_entity(deps, env, info, entity),
+        ExecuteMsg::CreateValidatorConfiguration { request } => {
+            create_new_validator_configuration(deps, env, info, request)
+        }
+        ExecuteMsg::UpdateValidatorConfiguration { request } => {
+            update_existing_validator_configuration(deps, env, info, request)
         }
         ExecuteMsg::RequestValidation { request } => {
             create_request_for_validation(deps, env, info, request)
@@ -67,7 +80,7 @@ pub fn execute(deps: DepsMutC, env: Env, info: MessageInfo, msg: ExecuteMsg) -> 
 
 /// The entry point used when an external address desires to retrieve information from the contract.
 /// Allows access to the internal storage information, as well as scope attributes emitted by the
-/// onboarding process.
+/// validation results process.
 ///
 /// # Parameters
 ///
@@ -81,6 +94,9 @@ pub fn execute(deps: DepsMutC, env: Env, info: MessageInfo, msg: ExecuteMsg) -> 
 #[entry_point]
 pub fn query(deps: DepsC, _env: Env, msg: QueryMsg) -> QueryResult {
     match msg {
+        QueryMsg::QueryEntityByAddress { address } => {
+            query_entity_by_address(deps.storage, address)
+        }
         QueryMsg::QueryValidationDefinitionByType { r#type } => {
             query_definition_by_type(deps.storage, r#type)
         }

@@ -55,6 +55,26 @@ provenanced tx bank send \
 ### Verify that the administrator account was created & funded
 provenanced q bank balances "$ADMIN_ACCOUNT" -t -o json | jq
 
+### Create the validator account
+provenanced tx bank send \
+    "$NODE0" \
+    "$VALIDATOR_ACCOUNT" \
+    350000000000nhash \
+    --from="$NODE0" \
+    --keyring-backend=test \
+    --home=build/node0 \
+    --chain-id=chain-local \
+    --gas=auto \
+    --gas-prices="1905nhash" \
+    --gas-adjustment=1.5 \
+    --broadcast-mode=block \
+    --yes \
+    --testnet \
+    --output json | jq
+
+### Verify that the validator account was created & funded
+provenanced q bank balances "$VALIDATOR_ACCOUNT" -t -o json | jq
+
 ### Create an unrestricted name that we will bind the address of the smart contract to
 provenanced tx name bind \
     "sc" \

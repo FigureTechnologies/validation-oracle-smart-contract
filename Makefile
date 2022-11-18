@@ -12,7 +12,7 @@ OPTIMIZER_DOCKER_TAG := 0.12.9
 all: clean build fmt lint test schema docs optimize
 
 .PHONY: dev
-dev: build fmt lint test schema
+dev: build fmt lint test schema docs
 
 .PHONY: clean
 clean:

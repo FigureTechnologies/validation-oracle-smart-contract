@@ -5,8 +5,8 @@ use crate::{
 use cosmwasm_std::{to_binary, Storage};
 use result_extensions::ResultExtensions;
 
-/// Queries the contract's internal [storage](crate::storage::validation_definition) for a
-/// [ValidationDefinition](crate::types::validation_definition::ValidationDefinition)
+/// Queries the contract's internal [storage](crate::storage::validation_definition) for
+/// a [ValidationDefinition](crate::types::validation_definition::ValidationDefinition)
 /// with the given type.
 ///
 /// # Parameters

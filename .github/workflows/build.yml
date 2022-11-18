@@ -24,7 +24,7 @@ env:
 jobs:
   check:
     name: Check Project Integrity
-    runs-on: [ self-hosted, linux ]
+    runs-on: [ self-hosted, linux ] # TODO: Do open-source Figure repos get access to the runners?
     env:
       RUN_CODE_COVERAGE:
         ${{
@@ -61,6 +61,12 @@ jobs:
         with:
           command: clippy
 
+      - name: Cargo Documentation
+        uses: actions-rs/cargo@v1
+        if: env.RUN_LINTING == 'true'
+        with:
+          command: doc
+
       - name: Cargo Tarpaulin XML Report
         uses: actions-rs/tarpaulin@v0.1
         if: env.RUN_CODE_COVERAGE == 'true'
@@ -86,5 +92,5 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2.3.0
         if: env.RUN_CODE_COVERAGE == 'true' && github.event_name == 'pull_request'
         with:
-          recreate: true
+          recreate: false
           path: code-coverage-results.md

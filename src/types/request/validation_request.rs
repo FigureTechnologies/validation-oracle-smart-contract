@@ -57,9 +57,6 @@ impl ValidationRequestOrder {
     pub fn maybe_get_allowed_validators(&self) -> Option<&[Addr]> {
         self.allowed_validators.as_deref()
     }
-    pub fn get_allowed_validators(&self) -> &[Addr] {
-        self.allowed_validators.as_ref().unwrap()
-    }
     pub fn get_quote(&self) -> &[Coin] {
         &self.quote
     }
@@ -70,7 +67,7 @@ impl ValidationRequestOrder {
 pub enum ValidationRequestStatus {
     /// Denotes a validation request which has been submitted but not claimed or completed by any validator.
     Requested,
-    // TODO: Determine if a Pending status is desired or not and update all these docs accordingly
+    // TODO: Determine if a Pending status is desired or not (depends on if requests target single validator or not) and update all these docs accordingly
     /// Denotes a validation request which has been submitted and claimed by a validator for fulfillment,
     /// but has yet to have results submitted.
     Pending,

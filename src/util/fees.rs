@@ -19,7 +19,7 @@ use result_extensions::ResultExtensions;
 /// * `contract_addr` The bech32 Provenance address of the contract iself, to facilitate the
 /// contract charging the fee to the sender of a request.
 /// * `fee_calculation` A function to calculate the [nhash](NHASH) fee to charge the request
-/// sender given the contract state.
+/// sender given the stored [ContractInfo].
 pub fn generate_contract_fee_msg<S: Into<String>, F: Fn(&ContractInfo) -> u128>(
     fee_type: S,
     deps: &DepsC,

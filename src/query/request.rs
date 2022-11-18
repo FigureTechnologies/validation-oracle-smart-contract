@@ -1,6 +1,6 @@
 use super::sort::NO_VALIDATION_REQUEST_SORT;
 use crate::{
-    storage::request::{get_requests_by_owner, get_requests_by_validator, may_get_request_by_id},
+    storage::request::{get_requests_by_owner, get_requests_by_validator, may_get_request},
     util::aliases::QueryResult,
 };
 
@@ -16,7 +16,7 @@ use result_extensions::ResultExtensions;
 /// * `storage` An immutable reference to the contract's internal storage.
 /// * `id` The ID of the validation request to search for.
 pub fn query_request_by_id(storage: &dyn Storage, id: String) -> QueryResult {
-    to_binary(&may_get_request_by_id(storage, id))?.to_ok()
+    to_binary(&may_get_request(storage, id))?.to_ok()
 }
 
 /// Queries the contract's internal [storage](crate::storage::request) for

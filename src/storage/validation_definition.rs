@@ -28,7 +28,7 @@ impl<'a> IndexList<ValidationDefinition> for DefinitionIndices<'a> {
 fn definitions<'a>() -> IndexedMap<'a, &'a [u8], ValidationDefinition, DefinitionIndices<'a>> {
     let indices = DefinitionIndices {
         type_index: MultiIndex::new(
-            |_pk, request: &ValidationDefinition| request.validation_type.clone(),
+            |_pk, definition: &ValidationDefinition| definition.validation_type.clone(),
             NAMESPACE_VALIDATION_DEFINITIONS_PK,
             NAMESPACE_VALIDATION_DEFINITIONS_TYPE_IDX,
         ),
@@ -42,7 +42,7 @@ fn definitions<'a>() -> IndexedMap<'a, &'a [u8], ValidationDefinition, Definitio
 /// # Parameters
 ///
 /// * `storage` A mutable reference to the contract's internal storage.
-/// * `request` The validation definition to insert.
+/// * `definition` The validation definition to insert.
 pub fn insert_validation_definition(
     storage: &mut dyn Storage,
     definition: &ValidationDefinition,
@@ -52,22 +52,72 @@ pub fn insert_validation_definition(
     if let Ok(existing_definition) = state.load(storage, key.as_bytes()) {
         ContractError::RecordAlreadyExists {
             explanation: format!(
-                "unique constraints violated! record with validation type '{}' already exists",
+                "a definition with validation type [{}] already exists",
                 existing_definition.validation_type
             ),
         }
         .to_err()
     } else {
-        state
-            .save(storage, key.as_bytes(), definition)
-            .map_err(|e| ContractError::StorageError {
-                message: format!("{:?}", e),
-            })
+        store_validation_definition(storage, definition, None)
     }
+}
+
+/// Updates an existing validation definition within the contract's storage,
+/// returning a [Result] reflecting whether the insertion succeeded or not.
+///
+/// # Parameters
+///
+/// * `storage` A mutable reference to the contract's internal storage.
+/// * `definition` The new validation definition to replace the one in storage with the same key.
+pub fn update_validation_definition(
+    storage: &mut dyn Storage,
+    definition: &ValidationDefinition,
+) -> ContractResult<()> {
+    let state = definitions();
+    if let Ok(old_definition) = state.load(storage, definition.storage_key().as_bytes()) {
+        store_validation_definition(storage, definition, Some(&old_definition))
+    } else {
+        ContractError::RecordNotFound {
+            explanation: format!(
+                "attempted to replace definition with validation type [{}] in storage, but no definition with that type exists",
+                &definition.storage_key()
+            ),
+        }
+        .to_err()
+    }
+}
+
+/// Inserts a validation definition into the contract's storage, overwriting
+/// any existing validation definition with the same key. Returns a [Result]
+/// reflecting whether the insertion succeeded or not.
+///
+/// # Parameters
+///
+/// * `storage` A mutable reference to the contract's internal storage.
+/// * `definition` The validation definition to store.
+/// * `old_definition`  The validation definition being replaced, if it exists.
+fn store_validation_definition(
+    storage: &mut dyn Storage,
+    definition: &ValidationDefinition,
+    old_definition: Option<&ValidationDefinition>,
+) -> ContractResult<()> {
+    definitions()
+        .replace(
+            storage,
+            definition.storage_key().as_bytes(),
+            Some(definition),
+            old_definition,
+        )
+        .map_err(|e| ContractError::StorageError {
+            message: format!("{:?}", e),
+        })
+}
 }
 
 /// Finds a validation definition from the contract's storage by its key,
 /// returning a [Result] reflecting whether the retrieval succeeded or not.
+/// Finds a validation definition from the contract's storage by its key, returning
+/// a [Result] reflecting whether the the validation definition was found or not.
 ///
 /// # Parameters
 ///

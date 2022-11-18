@@ -4,6 +4,7 @@ use cosmwasm_schema::cw_serde;
 
 #[cw_serde]
 pub struct AccessDefinition {
+    // TODO: Use this struct
     pub owner_address: String,
     pub access_routes: Vec<AccessRoute>,
     pub definition_type: AccessDefinitionType,

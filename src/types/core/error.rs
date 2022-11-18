@@ -5,6 +5,7 @@ use thiserror::Error;
 /// the contract's [entrypoints](crate::contract).
 #[derive(Error, Debug)]
 pub enum ContractError {
+    // TODO: Consolidate usage of ExistingId and RecordAlreadyExists for insertion executions to use only one of the two across the board
     /// A generic error returned from attempting a contract operation
     /// which requires a unique identifier with a duplicate.
     #[error("Cannot use [{id_type}] with id [{id}]. One with that id already exists")]

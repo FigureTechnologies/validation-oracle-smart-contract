@@ -1,42 +1,61 @@
 use std::collections::HashMap;
 
 use super::constants::{
-    ASSET_TYPE_KEY, CONTRACT_INFO_KEY, EVENT_TYPE_KEY, NEW_VALUE_KEY, RESULTS_SCOPE_ADDRESS_KEY,
-    VALIDATION_REQUEST_ID_KEY, VALIDATION_STATUS_KEY, VALIDATION_TYPE_KEY, VALIDATOR_ADDRESS_KEY,
+    ASSET_TYPE_KEY, CONTRACT_INFO_KEY, ENTITY_ADDRESSES_KEY, EVENT_TYPE_KEY, NEW_VALUE_KEY,
+    RESULTS_SCOPE_ADDRESS_KEY, VALIDATION_REQUEST_ID_KEY, VALIDATION_STATUS_KEY,
+    VALIDATION_TYPE_KEY, VALIDATOR_ADDRESS_KEY,
 };
-use crate::{
-    storage::contract_info::ContractInfo,
-    types::request::validation_request::ValidationRequestOrder,
-    util::constants::ADDITIONAL_METADATA_KEY,
-};
+use crate::{storage::contract_info::ContractInfo, util::constants::ADDITIONAL_METADATA_KEY};
 
 /// An enum that contains all different event types that can occur throughout the [contract's](crate::contract)
-/// routes.
+/// routes. Takes strings
 #[derive(Clone, Debug)]
-pub enum EventType<'a> {
+pub enum EventType {
     /// Occurs when the contract is [instantiated](crate::contract::instantiate) with [instantiate](crate::instantiate).
-    InstantiateContract(&'a ContractInfo),
+    InstantiateContract,
     /// Occurs when the contract is [migrated](crate::contract::migrate) with [migrate](crate::migrate).
     MigrateContract,
-    /// Occurs when the contract is [executed](crate::contract::execute) to [create a validation definition](crate::execute::create_validation_definition).
+    /// Occurs when the contract is [executed](crate::contract::execute) to
+    /// [create an entity](crate::execute::entity::create_new_entity).
+    AddEntity,
+    /// Occurs when the contract is [executed](crate::contract::execute) to
+    /// [update an entity](crate::execute::entity::update_existing_entity).
+    UpdateEntity,
+    /// Occurs when the contract is [executed](crate::contract::execute) to
+    /// [create a validation definition](crate::execute::validation_definition::create_new_validation_definition).
     AddValidationDefiniton,
-    /// Occurs when the contract is [executed](crate::contract::execute) to [create a validation request](crate::execute::create_request).
-    AddValidationRequest(&'a ValidationRequestOrder),
+    /// Occurs when the contract is [executed](crate::contract::execute) to
+    /// [create a validator configuration](crate::execute::validator_configuration::create_new_validator_configuration).
+    AddValidatorConfiguration,
+    /// Occurs when the contract is [executed](crate::contract::execute) to
+    /// [update a validator configuration](crate::execute::validator_configuration::update_existing_validator_configuration).
+    UpdateValidatorConfiguration,
+    /// Occurs when the contract is [executed](crate::contract::execute) to
+    /// [create a validation request](crate::execute::request::create_request_for_validation).
+    AddValidationRequest,
+    /// Occurs when the contract is [executed](crate::contract::execute) to
+    /// [update its settings](crate::execute::update_settings::update_settings).
+    UpdateSettings,
 }
 #[allow(clippy::from_over_into)]
-impl Into<String> for EventType<'_> {
+impl Into<String> for EventType {
     // TODO: Think about Into<String> versus Display
     fn into(self) -> String {
         match self {
-            EventType::InstantiateContract(_) => "instantiate_contract",
+            EventType::InstantiateContract => "instantiate_contract",
             EventType::MigrateContract => "migrate_contract",
+            EventType::AddEntity => "add_entity",
+            EventType::UpdateEntity => "update_entity",
             EventType::AddValidationDefiniton => "add_validation_definition",
-            EventType::AddValidationRequest(_) => "create_validation_request",
+            EventType::AddValidatorConfiguration => "add_validator_configuration",
+            EventType::UpdateValidatorConfiguration => "update_validator_configuration",
+            EventType::AddValidationRequest => "create_validation_request",
+            EventType::UpdateSettings => "update_settings",
         }
         .into()
     }
 }
-impl EventType<'_> {
+impl EventType {
     /// Utilizes the implementation of Into<String> to automatically derive the event name.  This
     /// allows an invocation without an explicit type declaration.
     pub fn event_name(self) -> String {
@@ -58,66 +77,9 @@ impl EventAttributes {
     /// Blockchain Event Stream, so this value is required for any new instance and appends the
     /// name of the event with the key of [EVENT_TYPE_KEY](super::constants::EVENT_TYPE_KEY).
     pub fn new(event_type: EventType) -> Self {
-        let mut attributes = vec![(EVENT_TYPE_KEY.to_string(), event_type.clone().event_name())];
-        let maybe_associated_attribute = match event_type {
-            // TODO: Does this match have to return a vec instead of an array?
-            EventType::InstantiateContract(contract_info) => Some(
-                [(
-                    CONTRACT_INFO_KEY.to_string(),
-                    format!("{:?}", contract_info),
-                )]
-                .to_vec(),
-            ),
-            EventType::MigrateContract => None,
-            EventType::AddValidationDefiniton => None,
-            EventType::AddValidationRequest(request) => Some(
-                [
-                    (
-                        VALIDATION_REQUEST_ID_KEY.to_string(),
-                        request.get_id().to_string(),
-                    ),
-                    (
-                        VALIDATION_STATUS_KEY.to_string(),
-                        request.status.to_string(),
-                    ),
-                ]
-                .to_vec(),
-            ),
-        };
-        if let Some(associated_attribute) = maybe_associated_attribute {
-            attributes.extend_from_slice(&associated_attribute);
+        EventAttributes {
+            attributes: vec![(EVENT_TYPE_KEY.into(), event_type.into())],
         }
-        EventAttributes { attributes }
-    }
-
-    // TODO: Change link in line below to validation results submission method
-
-    /// Certain contract events like [create_request](crate::execute::create_request::create_request_for_validation)
-    /// benefit from having a standardized set of event types to facilitate processing them from the event stream.
-    /// This is a constructor for a struct that includes those values to facilitate the process of generating
-    /// all the relevant attributes.
-    ///
-    /// # Parameters
-    ///
-    /// * `event_type` All events should denote their type for external consumers of the Provenance
-    /// Blockchain Event Stream, so this value is required for any new instance and appends the
-    /// name of the event with the key of [EVENT_TYPE_KEY](super::constants::EVENT_TYPE_KEY).
-    /// * `asset_type` An enumerated value for the type of the asset(s) targeted for validation that are
-    /// associated with the event, keyed to [ASSET_TYPE_KEY](super::constants::ASSET_TYPE_KEY).
-    /// * `validation_type` An enumerated value for the type of validation associated with the event,
-    /// keyed to [VALIDATION_TYPE_KEY](super::constants::VALIDATION_TYPE_KEY).
-    /// * `scope_address` The bech32 address for the validation results scope associated with the event, keyed to
-    /// [RESULTS_SCOPE_ADDRESS_KEY](super::constants::RESULTS_SCOPE_ADDRESS_KEY).
-    pub fn for_results_submission<T1: Into<String>, T2: Into<String>, T3: Into<String>>(
-        event_type: EventType,
-        asset_type: T1,
-        validation_type: T2,
-        scope_address: T3,
-    ) -> Self {
-        Self::new(event_type)
-            .set_asset_type(asset_type)
-            .set_validation_type(validation_type)
-            .set_results_scope_address(scope_address)
     }
 
     /// Appends an asset type value to an existing [EventAttributes](self::EventAttributes) and
@@ -130,6 +92,34 @@ impl EventAttributes {
     pub fn set_asset_type<T: Into<String>>(mut self, asset_type: T) -> Self {
         self.attributes
             .push((ASSET_TYPE_KEY.to_string(), asset_type.into()));
+        self
+    }
+
+    /// Appends a validation request ID to an existing [EventAttributes](self::EventAttributes) and
+    /// returns the same instance to create a functional chain for further attribute addition.
+    ///
+    /// # Parameters
+    ///
+    /// * `validation_request_id` An ID for a validation request associated with the event,
+    /// keyed to [VALIDATION_REQUEST_ID_KEY](super::constants::VALIDATION_REQUEST_ID_KEY).
+    pub fn set_validation_request_id<T: Into<String>>(mut self, validation_request_id: T) -> Self {
+        self.attributes.push((
+            VALIDATION_REQUEST_ID_KEY.to_string(),
+            validation_request_id.into(),
+        ));
+        self
+    }
+
+    /// Appends a validation status value to an existing [EventAttributes](self::EventAttributes) and
+    /// returns the same instance to create a functional chain for further attribute addition.
+    ///
+    /// # Parameters
+    ///
+    /// * `validation_status` A status for a validation request associated with the event,
+    /// keyed to [VALIDATION_STATUS_KEY](super::constants::VALIDATION_STATUS_KEY).
+    pub fn set_validation_status<T: Into<String>>(mut self, validation_status: T) -> Self {
+        self.attributes
+            .push((VALIDATION_STATUS_KEY.to_string(), validation_status.into()));
         self
     }
 
@@ -173,18 +163,18 @@ impl EventAttributes {
         self
     }
 
-    /// Appends a validation request's status value to an existing [EventAttributes](self::EventAttributes) and
+    /// Appends one or more addresses to an existing [EventAttributes](self::EventAttributes) and
     /// returns the same instance to create a functional chain for further attribute addition.
     ///
     /// # Parameters
-    /// * `status` The onboarding status of the current
-    /// [ValidationRequestOrder](crate::types::request::validation_request::ValidationRequestOrder)
-    /// associated with the given event.
-    // pub fn set_new_validation_status(mut self, status: &ValidationRequestStatus) -> Self {
-    //     self.attributes
-    //         .push((VALIDATION_STATUS_KEY.into(), status.to_string()));
-    //     self
-    // }
+    ///
+    /// * `addresses` A collection of addresses of entities associated with the event,
+    /// keyed to [ENTITY_ADDRESSES_KEY](super::constants::ENTITY_ADDRESSES_KEY).
+    pub fn set_entity_addresses(mut self, addresses: &[String]) -> Self {
+        self.attributes
+            .push((ENTITY_ADDRESSES_KEY.to_string(), addresses.join(", ")));
+        self
+    }
 
     /// Appends a dynamic value to an existing [EventAttributes](self::EventAttributes) and
     /// returns the same instance to create a functional chain for further attribute addition.
@@ -196,6 +186,20 @@ impl EventAttributes {
     pub fn set_new_value<T: ToString>(mut self, new_value: T) -> Self {
         self.attributes
             .push((NEW_VALUE_KEY.to_string(), new_value.to_string()));
+        self
+    }
+
+    /// Appends a [ContractInfo] to an existing [EventAttributes] and returns
+    /// the same instance to create a functional chain for further attribute addition.
+    ///
+    /// # Parameters
+    ///
+    /// * `contract_info` An instance of top-level contract information.
+    pub fn set_contract_info(mut self, contract_info: &ContractInfo) -> Self {
+        self.attributes.push((
+            CONTRACT_INFO_KEY.to_string(),
+            format!("{:?}", contract_info),
+        ));
         self
     }
 

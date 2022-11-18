@@ -57,7 +57,8 @@ fn requests<'a>() -> IndexedMap<'a, &'a [u8], ValidationRequestOrder, RequestInd
     IndexedMap::new(NAMESPACE_VALIDATION_REQUESTS_PK, indices)
 }
 
-/// Inserts a validation request into the contract's storage.
+/// Inserts a validation request into the contract's storage, returning
+/// a [Result] reflecting whether the insertion succeeded or not.
 ///
 /// # Parameters
 ///
@@ -69,15 +70,17 @@ pub fn insert_request(
 ) -> ContractResult<()> {
     let state = requests();
     if let Ok(existing_request) = state.load(storage, request.id.as_bytes()) {
-        return ContractError::StorageError {
-            message: format!("a request with id [{}] already exists", existing_request.id),
+        ContractError::RecordAlreadyExists {
+            explanation: format!("a request with id [{}] already exists", existing_request.id),
         }
-        .to_err();
+        .to_err()
+    } else {
+        store_request(storage, request, None)
     }
-    store_request(storage, request)
 }
 
-/// Updates an existing validation request within the contract's storage.
+/// Updates an existing validation request within the contract's storage, returning
+/// a [Result] reflecting whether the insertion succeeded or not.
 ///
 /// # Parameters
 ///
@@ -88,12 +91,11 @@ pub fn update_request(
     request: &ValidationRequestOrder,
 ) -> ContractResult<()> {
     let state = requests();
-    if state.load(storage, request.id.as_bytes()).is_ok() {
-        delete_request_by_id(storage, &request.id)?;
-        store_request(storage, request)
+    if let Ok(old_request) = state.load(storage, request.id.as_bytes()) {
+        store_request(storage, request, Some(&old_request))
     } else {
-        ContractError::StorageError {
-            message: format!(
+        ContractError::RecordNotFound {
+            explanation: format!(
                 "attempted to replace request with id [{}] in storage, but no request with that id existed",
                 &request.id
             ),
@@ -103,19 +105,24 @@ pub fn update_request(
 }
 
 /// Inserts a validation request into the contract's storage, overwriting
-/// any existing validation request with the same ID.
+/// any existing validation request with the same ID. Returns a [Result]
+/// reflecting whether the insertion succeeded or not.
 ///
 /// # Parameters
 ///
 /// * `storage` A mutable reference to the contract's internal storage.
 /// * `request` The validation request to store.
+/// * `old_request` The validation request being replaced, if it exists.
 fn store_request(
     storage: &mut dyn Storage,
     request: &ValidationRequestOrder,
+    old_request: Option<&ValidationRequestOrder>,
 ) -> ContractResult<()> {
     requests()
-        .replace(storage, request.id.as_bytes(), Some(request), None)?
-        .to_ok()
+        .replace(storage, request.id.as_bytes(), Some(request), old_request)
+        .map_err(|e| ContractError::StorageError {
+            message: format!("{:?}", e),
+        })
 }
 
 /// Finds a validation request by its ID, returning an [Option]
@@ -125,7 +132,7 @@ fn store_request(
 ///
 /// * `storage` An immutable reference to the contract's internal storage.
 /// * `id` The ID of the validation request to search for.
-pub fn may_get_request_by_id<S: Into<String>>(
+pub fn may_get_request<S: Into<String>>(
     storage: &dyn Storage,
     id: S,
 ) -> Option<ValidationRequestOrder> {
@@ -141,16 +148,16 @@ pub fn may_get_request_by_id<S: Into<String>>(
 ///
 /// * `storage` An immutable reference to the contract's internal storage.
 /// * `id` The ID of the validation request to search for.
-pub fn get_request_by_id<S: Into<String>>(
+pub fn get_request<S: Into<String>>(
     storage: &dyn Storage,
     id: S,
 ) -> ContractResult<ValidationRequestOrder> {
     let id = id.into();
     requests()
         .load(storage, id.as_bytes())
-        .map_err(|e| ContractError::StorageError {
-            message: format!(
-                "failed to find ValidationRequestOrder by id [{}]: {:?}",
+        .map_err(|e| ContractError::RecordNotFound {
+            explanation: format!(
+                "failed to find ValidationRequestOrder with id [{}]: {:?}",
                 id, e
             ),
         })
@@ -264,9 +271,8 @@ pub fn delete_request_by_id<S: Into<String>>(
         .remove(storage, id.as_bytes())
         .map_err(|e| ContractError::StorageError {
             message: format!(
-                "failed to remove ValidationRequestOrder by id [{}]: {:?}",
+                "failed to remove ValidationRequestOrder with id [{}]: {:?}",
                 id, e
             ),
-        })?;
-    ().to_ok()
+        })
 }

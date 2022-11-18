@@ -1,5 +1,5 @@
 use crate::{
-    storage::request::{get_request_by_id, insert_request},
+    storage::request::{get_request, insert_request},
     types::{core::error::ContractError, request::validation_request::ValidationRequest},
     util::{
         aliases::{DepsMutC, EntryPointResponse},
@@ -18,14 +18,15 @@ pub fn create_request_for_validation(
     info: MessageInfo,
     request: ValidationRequest,
 ) -> EntryPointResponse {
-    // Check if request with same ID already exists
-    if get_request_by_id(deps.storage, request.get_id()).is_ok() {
+    // Validate the request
+    if get_request(deps.storage, request.get_id()).is_ok() {
         return ContractError::ExistingId {
             id: request.get_id().to_string(),
             id_type: "request".to_string(),
         }
         .to_err();
     }
+    // TODO: Should we let validation requests (...I forgot the rest, leaving this here as a note in case I remember)
     // Form the request's messages
     let ValidationRequestCreationResponse {
         request_order,
@@ -37,9 +38,7 @@ pub fn create_request_for_validation(
     // Create and return a response
     let mut response = Response::new()
         .add_messages(messages)
-        .add_attributes(EventAttributes::new(EventType::AddValidationRequest(
-            &request_order,
-        )))
+        .add_attributes(EventAttributes::new(EventType::AddValidationRequest))
         .set_data(to_binary(&request_order)?);
     if let Some(request_fee_msg) = request_fee_msg {
         response = response

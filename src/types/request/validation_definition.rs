@@ -1,6 +1,4 @@
-use crate::types::{
-    validation_definition::ValidationDefinition, validator_configuration::ValidatorConfiguration,
-};
+use crate::types::validation_definition::ValidationDefinition;
 
 use cosmwasm_schema::cw_serde;
 
@@ -8,7 +6,6 @@ use cosmwasm_schema::cw_serde;
 pub struct ValidationDefinitionCreationRequest {
     pub validation_type: String,
     pub display_name: Option<String>,
-    pub validators: Vec<ValidatorConfiguration>,
     pub enabled: Option<bool>,
     pub bind_name: Option<bool>,
 }
@@ -31,7 +28,6 @@ impl From<ValidationDefinitionCreationRequest> for ValidationDefinition {
         ValidationDefinition {
             validation_type: request.validation_type,
             display_name: request.display_name,
-            validators: request.validators,
             enabled: request.enabled.unwrap_or(true),
         }
     }

@@ -1,4 +1,4 @@
-use crate::storage::contract_info::{get_contract_info, set_contract_info, ContractInfo};
+use crate::storage::contract_info::{set_contract_info, ContractInfo};
 use crate::types::core::error::ContractError;
 use crate::types::core::msg::InstantiateMsg;
 use crate::util::aliases::{ContractResult, DepsMutC, EntryPointResponse};
@@ -10,7 +10,7 @@ use provwasm_std::{bind_name, NameBinding};
 use result_extensions::ResultExtensions;
 
 /// The main functionality executed when the smart contract is first instantiated. This creates
-/// the internal [contract state](crate::storage::contract_info::ContractInfo) value.
+/// the internal [ContractInfo](crate::storage::contract_info::ContractInfo) value.
 ///
 /// # Parameters
 ///
@@ -39,16 +39,16 @@ pub fn instantiate_contract(
     set_contract_info(deps.storage, &contract_info)?;
 
     let bind_name_msg = bind_name(
-        contract_info.bind_name,
+        contract_info.bind_name.clone(),
         env.contract.address,
         NameBinding::Restricted,
     )?;
 
     Response::new()
         .add_message(bind_name_msg)
-        .add_attributes(EventAttributes::new(EventType::InstantiateContract(
-            &get_contract_info(deps.storage)?,
-        )))
+        .add_attributes(
+            EventAttributes::new(EventType::InstantiateContract).set_contract_info(&contract_info),
+        )
         .to_ok()
 }
 
