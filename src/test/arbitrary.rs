@@ -2,8 +2,9 @@ use crate::storage::contract_info::ContractInfo;
 use crate::types::core::msg::InstantiateMsg;
 use crate::types::request::validation_definition::ValidationDefinitionCreationRequest;
 use crate::types::validation_definition::ValidationDefinition;
-use cosmwasm_std::{Addr, Uint128};
+use crate::util::constants::NHASH;
 
+use cosmwasm_std::{Addr, Coin, Uint128};
 use proptest::option::of as option_of;
 use proptest::prelude::any;
 use proptest::prop_compose;
@@ -16,7 +17,19 @@ prop_compose! {
 }
 
 prop_compose! {
-    pub fn arb_request_creation_nhash_fee()(request_creation_nhash_fee in 0u128..) -> Uint128 {
+    pub fn arb_coin()(denom in ".+", amount in any::<u128>()) -> Coin {
+        Coin::new(amount, denom)
+    }
+}
+
+prop_compose! {
+    pub fn arb_nhash()(amount in any::<u128>()) -> Coin {
+        Coin::new(amount, NHASH)
+    }
+}
+
+prop_compose! {
+    pub fn arb_request_creation_nhash_fee()(request_creation_nhash_fee in any::<u128>()) -> Uint128 {
         Uint128::new(request_creation_nhash_fee)
     }
 }

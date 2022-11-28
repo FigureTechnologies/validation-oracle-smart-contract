@@ -81,7 +81,7 @@ mod tests {
     use crate::{
         instantiate::instantiate_contract,
         test::{
-            arbitrary::{arb_addr, arb_instantiate_msg},
+            arbitrary::{arb_addr, arb_coin, arb_instantiate_msg},
             helpers::single_attribute_for_key,
         },
         types::core::error::ContractError,
@@ -89,7 +89,7 @@ mod tests {
     };
 
     use cosmwasm_std::testing::{mock_env, mock_info};
-    use proptest::{prop_assert, prop_assert_eq, proptest};
+    use proptest::{collection::vec, prop_assert, prop_assert_eq, proptest, sample::size_range};
     use provwasm_mocks::mock_dependencies;
 
     proptest! {
@@ -122,16 +122,16 @@ mod tests {
         ) {
             let mut deps = mock_dependencies(&[]);
 
-            let mut invalid_instantiate = valid_instantiate_msg.clone();
-            invalid_instantiate.bind_name = blank_bind_name;
-            let response = instantiate_contract(deps.as_mut(), mock_env(), mock_info(sender.as_str(), &[]), invalid_instantiate);
+            let mut invalid_instantiate_msg = valid_instantiate_msg.clone();
+            invalid_instantiate_msg.bind_name = blank_bind_name;
+            let response = instantiate_contract(deps.as_mut(), mock_env(), mock_info(sender.as_str(), &[]), invalid_instantiate_msg);
             prop_assert!(response.is_err(), "instantiation with invalid input unexpectedly produced no error");
             let response = response.unwrap_err();
             match response {
                 ContractError::InvalidInstantiation { message } => {
                     prop_assert!(message.contains("bind_name value was empty"))
                 },
-                // TODO: How to check that error is of the type we want (ContractError::InvalidRequest)
+                // TODO: How to check that error is of the type we want (ContractError::InvalidInstantiation)
                 // without early panicking or doing `prop_assert(false, "message we want")`?
                 error => prop_assert!(false, "instantation error was of an unexpected type: [{}]", error),
             }
@@ -145,16 +145,37 @@ mod tests {
         ) {
             let mut deps = mock_dependencies(&[]);
 
-            let mut invalid_instantiate = valid_instantiate_msg.clone();
-            invalid_instantiate.contract_name = blank_contract_name;
-            let response = instantiate_contract(deps.as_mut(), mock_env(), mock_info(sender.as_str(), &[]), invalid_instantiate);
+            let mut invalid_instantiate_msg = valid_instantiate_msg.clone();
+            invalid_instantiate_msg.contract_name = blank_contract_name;
+            let response = instantiate_contract(deps.as_mut(), mock_env(), mock_info(sender.as_str(), &[]), invalid_instantiate_msg);
             prop_assert!(response.is_err(), "instantiation with invalid input unexpectedly produced no error");
             let response = response.unwrap_err();
             match response {
                 ContractError::InvalidInstantiation { message } => {
                     prop_assert!(message.contains("contract_name value was empty"))
                 },
-                // TODO: How to check that error is of the type we want (ContractError::InvalidRequest)
+                // TODO: How to check that error is of the type we want (ContractError::InvalidInstantiation)
+                // without early panicking or doing `prop_assert(false, "message we want")`?
+                error => prop_assert!(false, "instantation error was of an unexpected type: [{}]", error),
+            }
+        }
+
+        #[test]
+        fn instantiate_with_funds(
+            valid_instantiate_msg in arb_instantiate_msg(),
+            sender in arb_addr(),
+            random_funds in vec(arb_coin(), size_range(1..100))
+        ) {
+            let mut deps = mock_dependencies(&[]);
+
+            let response = instantiate_contract(deps.as_mut(), mock_env(), mock_info(sender.as_str(), &random_funds), valid_instantiate_msg);
+            prop_assert!(response.is_err(), "instantiation with funds unexpectedly produced no error");
+            let response = response.unwrap_err();
+            match response {
+                ContractError::InvalidFunds { message } => {
+                    prop_assert!(message.contains("route requires that no funds be provided"))
+                },
+                // TODO: How to check that error is of the type we want (ContractError::InvalidFunds)
                 // without early panicking or doing `prop_assert(false, "message we want")`?
                 error => prop_assert!(false, "instantation error was of an unexpected type: [{}]", error),
             }

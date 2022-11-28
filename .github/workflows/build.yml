@@ -101,16 +101,12 @@ jobs:
           out-type: Xml
           args: '--ignore-config --ignore-tests'
 
-      - name: Generate code coverage summary
-        uses: irongut/CodeCoverageSummary@v1.3.0
-        if: env.RUN_CODE_COVERAGE
+      - uses: codecov/codecov-action@v3
         with:
-          badge: true
-          filename: cobertura.xml
-          format: markdown
-          indicators: false
-          output: both
-          thresholds: '60 75'
+          files: cobertura.xml
+          flags: unittests
+          fail_ci_if_error: false
+          verbose: true
 
       - name: Publish code coverage summary to PR
         uses: marocchino/sticky-pull-request-comment@v2.3.0
