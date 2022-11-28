@@ -1,0 +1,8 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc fd520a694998c57eda3b266114c44a8217e6c7bbac4325bc65e76a19db1b81e5 # shrinks to instantiate_msg = InstantiateMsg { bind_name: "a", contract_name: "¡", create_request_nhash_fee: Uint128(0) }, sender = Addr("A"), blank_bind_name = "\u{85}"
+cc cf575b185c6deed8d86a253ce3a35bd34272587327f38d85468dfc1d02c5f00a # shrinks to instantiate_msg = InstantiateMsg { bind_name: "0", contract_name: "\t", create_request_nhash_fee: Uint128(0) }, sender = Addr("0")

@@ -39,7 +39,7 @@ pub enum EventType {
 }
 #[allow(clippy::from_over_into)]
 impl Into<String> for EventType {
-    // TODO: Think about Into<String> versus Display
+    // TODO: Think about Into<String> versus Display (https://stackoverflow.com/q/25316115/)
     fn into(self) -> String {
         match self {
             EventType::InstantiateContract => "instantiate_contract",
@@ -290,16 +290,15 @@ impl Default for EventAdditionalMetadata {
 
 #[cfg(test)]
 mod tests {
-    use cosmwasm_std::Response;
-
-    use crate::test::cosmos_type_helpers::single_attribute_for_key;
+    use super::{EventAttributes, EventType};
+    use crate::test::helpers::single_attribute_for_key;
     use crate::util::constants::{
         ASSET_TYPE_KEY, EVENT_TYPE_KEY, NEW_VALUE_KEY, RESULTS_SCOPE_ADDRESS_KEY,
         VALIDATION_TYPE_KEY, VALIDATOR_ADDRESS_KEY,
     };
     use crate::util::event_attributes::EventAdditionalMetadata;
 
-    use super::{EventAttributes, EventType};
+    use cosmwasm_std::Response;
 
     #[test]
     fn test_response_consumption() {

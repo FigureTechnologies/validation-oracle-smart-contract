@@ -20,7 +20,7 @@ pub struct ContractInfo {
     pub contract_name: String,
     pub contract_type: String,
     pub contract_version: String,
-    pub create_request_nhash_fee: Uint128,
+    pub create_request_nhash_fee: Uint128, // TODO: Change to map or vec to store all possible contract-imposed fees, add iter() storage accessors
 }
 impl ContractInfo {
     pub fn new<S1: Into<String>, S2: Into<String>>(
@@ -65,60 +65,56 @@ pub fn may_get_contract_info(store: &dyn Storage) -> Option<ContractInfo> {
 
 #[cfg(test)]
 mod tests {
-    use provwasm_mocks::mock_dependencies;
-
+    use crate::instantiate::instantiate_contract;
     use crate::storage::contract_info::{
-        get_contract_info, may_get_contract_info, set_contract_info, ContractInfo, CONTRACT_TYPE,
+        get_contract_info, may_get_contract_info, set_contract_info, CONTRACT_TYPE,
         CONTRACT_VERSION,
     };
-    use crate::test::mock_instantiate::{
-        default_instantiate, DEFAULT_ADMIN_ADDRESS, DEFAULT_CONTRACT_BIND_NAME,
-        DEFAULT_CONTRACT_NAME,
-    };
-    use cosmwasm_std::{Addr, Uint128};
+    use crate::test::arbitrary::{arb_addr, arb_contract_info, arb_instantiate_msg};
 
-    #[test]
-    pub fn set_and_get_contract_info_with_valid_data() {
-        let mut deps = mock_dependencies(&[]);
-        let result = set_contract_info(
-            deps.as_mut().storage,
-            &ContractInfo::new(
-                Addr::unchecked(DEFAULT_ADMIN_ADDRESS),
-                DEFAULT_CONTRACT_BIND_NAME.to_string(),
-                DEFAULT_CONTRACT_NAME.to_string(),
-                None,
-            ),
-        );
-        match result {
-            Ok(()) => {}
-            result => panic!("unexpected error inserting contract info: {:?}", result),
+    use cosmwasm_std::testing::{mock_env, mock_info};
+    use proptest::{prop_assert, prop_assert_eq, proptest};
+    use provwasm_mocks::mock_dependencies;
+
+    proptest! {
+        #[test]
+        fn set_and_get_contract_info_with_valid_data(contract_info in arb_contract_info(true)) { // TODO: Change to individual parameters
+            let mut deps = mock_dependencies(&[]);
+
+            let result = set_contract_info(
+                deps.as_mut().storage,
+                &contract_info,
+            );
+            prop_assert!(result.is_ok(), "storing contract info produced an error");
+
+            let fetched_contract_info = get_contract_info(&deps.storage);
+            prop_assert!(fetched_contract_info.is_ok(), "retrieving contract info produced an error");
+            let fetched_contract_info = fetched_contract_info.unwrap(); // TODO: Verify this won't run if the above assert fails
+
+            prop_assert_eq!(contract_info.admin, fetched_contract_info.admin);
+            prop_assert_eq!(contract_info.bind_name, fetched_contract_info.bind_name);
+            prop_assert_eq!(contract_info.contract_name, fetched_contract_info.contract_name);
+            prop_assert_eq!(CONTRACT_TYPE, fetched_contract_info.contract_type);
+            prop_assert_eq!(CONTRACT_VERSION, fetched_contract_info.contract_version);
+            prop_assert_eq!(contract_info.create_request_nhash_fee, fetched_contract_info.create_request_nhash_fee);
         }
 
-        let contract_info = get_contract_info(&deps.storage);
-        match contract_info {
-            Ok(contract_info) => {
-                assert_eq!(Addr::unchecked("contract_admin"), contract_info.admin);
-                assert_eq!(DEFAULT_CONTRACT_BIND_NAME, contract_info.bind_name);
-                assert_eq!(DEFAULT_CONTRACT_NAME, contract_info.contract_name);
-                assert_eq!(CONTRACT_TYPE, contract_info.contract_type);
-                assert_eq!(CONTRACT_VERSION, contract_info.contract_version);
-                assert_eq!(Uint128::zero(), contract_info.create_request_nhash_fee);
-            }
-            result => panic!("unexpected error retrieving contract info: {:?}", result),
-        }
-    }
+        #[test]
+        fn may_get_contract_info_if_instantiated(instantiate_msg in arb_instantiate_msg(), sender in arb_addr()) {
+            let mut deps = mock_dependencies(&[]);
 
-    #[test]
-    fn test_may_get_contract_info() {
-        let mut deps = mock_dependencies(&[]);
-        assert!(
-            may_get_contract_info(deps.as_ref().storage).is_none(),
-            "contract info should not load when it has not yet been stored",
-        );
-        default_instantiate(deps.as_mut()).expect("default test instantiate should succeed");
-        assert!(
-            may_get_contract_info(deps.as_ref().storage).is_some(),
-            "contract info should be available after instantiation",
-        );
+            assert!(
+                may_get_contract_info(deps.as_ref().storage).is_none(),
+                "contract info unexpectedly loaded when it has not yet been stored",
+            );
+
+            let response = instantiate_contract(deps.as_mut(), mock_env(), mock_info(sender.as_str(), &[]), instantiate_msg);
+            prop_assert!(response.is_ok(), "instantiation with valid input produced an error: {}", response.unwrap_err());
+
+            assert!(
+                may_get_contract_info(deps.as_ref().storage).is_some(),
+                "contract info was not available after instantiation",
+            );
+        }
     }
 }

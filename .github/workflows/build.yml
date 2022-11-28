@@ -24,7 +24,7 @@ env:
 jobs:
   check:
     name: Check Project Integrity
-    runs-on: [ self-hosted, linux ] # TODO: Do open-source Figure repos get access to the runners?
+    runs-on: ubuntu-latest
     env:
       RUN_CODE_COVERAGE:
         ${{
@@ -48,34 +48,50 @@ jobs:
           default: true
           components: clippy, rustfmt
 
-      - name: Cargo Format
+      - name: Cargo — Format
         uses: actions-rs/cargo@v1
         if: env.RUN_LINTING == 'true'
         with:
           command: fmt
           args: --all -- --check
 
-      - name: Cargo Clippy
+      - name: Cargo — Clippy
         uses: actions-rs/cargo@v1
         if: env.RUN_LINTING == 'true'
         with:
           command: clippy
 
-      - name: Cargo Documentation
+      - name: Cargo — Documentation
         uses: actions-rs/cargo@v1
         if: env.RUN_LINTING == 'true'
         with:
           command: doc
 
-      - name: Cargo Tarpaulin XML Report
+      - name: Cargo — Install test report converter
+        uses: actions-rs/cargo@v1
+        with:
+          command: install cargo2junit
+
+      - name: Cargo — Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test-report # TODO: If this works, is it advisable?
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        with:
+          check_name: "Test Results"
+          pull_request_build: "commit"
+          report_individual_runs: true
+          files: "results.xml"
+
+      - name: Cargo — Check code coverage
         uses: actions-rs/tarpaulin@v0.1
         if: env.RUN_CODE_COVERAGE == 'true'
         with:
-          version: '0.19.1'
+          version: '0.22.0'
           out-type: Xml
           args: '--ignore-config --ignore-tests'
-
-      # TODO: Add test report publishing
 
       - name: Generate code coverage summary
         uses: irongut/CodeCoverageSummary@v1.3.0

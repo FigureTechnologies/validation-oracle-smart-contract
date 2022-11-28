@@ -19,9 +19,6 @@ impl ValidationDefinitionCreationRequest {
     pub fn get_display_name(&self) -> &str {
         self.display_name.as_ref().unwrap()
     }
-    pub fn get_validators(&self) -> &[ValidatorConfiguration] {
-        &self.validators
-    }
 }
 impl From<ValidationDefinitionCreationRequest> for ValidationDefinition {
     fn from(request: ValidationDefinitionCreationRequest) -> Self {

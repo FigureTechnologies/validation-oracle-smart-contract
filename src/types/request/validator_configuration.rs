@@ -42,6 +42,9 @@ impl ValidatorConfigurationUpdateRequest {
     pub fn maybe_get_new_validation_costs(&self) -> Option<&[ValidationCost]> {
         self.validation_costs.as_deref()
     }
+    pub fn get_new_validation_costs(&self) -> &[ValidationCost] {
+        self.validation_costs.as_deref().unwrap()
+    }
     pub fn storage_key(&self) -> String {
         format!("{}-{}", &self.validator, &self.get_validation_type())
     }

@@ -60,10 +60,10 @@ pub fn instantiate_contract(
 /// configuration used by the contract.
 fn validate_instantiate_msg(msg: &InstantiateMsg) -> ContractResult<()> {
     let mut errors = vec![];
-    if msg.bind_name.is_empty() {
+    if msg.bind_name.trim().is_empty() {
         errors.push("bind_name value was empty");
     }
-    if msg.contract_name.is_empty() {
+    if msg.contract_name.trim().is_empty() {
         errors.push("contract_name value was empty");
     }
     if !errors.is_empty() {
@@ -78,30 +78,86 @@ fn validate_instantiate_msg(msg: &InstantiateMsg) -> ContractResult<()> {
 
 #[cfg(test)]
 mod tests {
-    use provwasm_mocks::mock_dependencies;
-
     use crate::{
+        instantiate::instantiate_contract,
         test::{
-            cosmos_type_helpers::single_attribute_for_key,
-            mock_instantiate::{test_instantiate, TestInstantiate},
+            arbitrary::{arb_addr, arb_instantiate_msg},
+            helpers::single_attribute_for_key,
         },
+        types::core::error::ContractError,
         util::constants::EVENT_TYPE_KEY,
     };
 
-    #[test]
-    fn test_valid_default_instantiate() {
-        let mut deps = mock_dependencies(&[]);
-        let response = test_instantiate(deps.as_mut(), TestInstantiate::default())
-            .expect("the default instantiate should produce a response without error");
-        assert_eq!(
-            2,
-            response.attributes.len(),
-            "a single attribute should be emitted"
-        );
-        assert_eq!(
-            "instantiate_contract",
-            single_attribute_for_key(&response, EVENT_TYPE_KEY),
-            "the proper event type should be emitted",
-        );
+    use cosmwasm_std::testing::{mock_env, mock_info};
+    use proptest::{prop_assert, prop_assert_eq, proptest};
+    use provwasm_mocks::mock_dependencies;
+
+    proptest! {
+        #[test]
+        fn instantiate_with_valid_data(instantiate_msg in arb_instantiate_msg(), sender in arb_addr()) {
+            let mut deps = mock_dependencies(&[]);
+
+            let response = instantiate_contract(deps.as_mut(), mock_env(), mock_info(sender.as_str(), &[]), instantiate_msg);
+            // TODO: Verify if interpolation is needed in message or if the shrunken test output is sufficient
+            prop_assert!(response.is_ok(), "instantiation with valid input produced an error");
+            let response = response.unwrap();
+
+            prop_assert_eq!(
+                2,
+                response.attributes.len(),
+                "two attributes should be emitted"
+            );
+            prop_assert_eq!(
+                "instantiate_contract",
+                single_attribute_for_key(&response, EVENT_TYPE_KEY),
+                "the proper event type should be emitted",
+            );
+        }
+
+        #[test]
+        fn instantiate_with_blank_bind_name(
+            valid_instantiate_msg in arb_instantiate_msg(),
+            sender in arb_addr(),
+            blank_bind_name in r"\s*", // TODO: What is more conventional for regex strings, `r"\s+"` or `"\\s+"`?
+        ) {
+            let mut deps = mock_dependencies(&[]);
+
+            let mut invalid_instantiate = valid_instantiate_msg.clone();
+            invalid_instantiate.bind_name = blank_bind_name;
+            let response = instantiate_contract(deps.as_mut(), mock_env(), mock_info(sender.as_str(), &[]), invalid_instantiate);
+            prop_assert!(response.is_err(), "instantiation with invalid input unexpectedly produced no error");
+            let response = response.unwrap_err();
+            match response {
+                ContractError::InvalidInstantiation { message } => {
+                    prop_assert!(message.contains("bind_name value was empty"))
+                },
+                // TODO: How to check that error is of the type we want (ContractError::InvalidRequest)
+                // without early panicking or doing `prop_assert(false, "message we want")`?
+                error => prop_assert!(false, "instantation error was of an unexpected type: [{}]", error),
+            }
+        }
+
+        #[test]
+        fn instantiate_with_blank_contract_name(
+            valid_instantiate_msg in arb_instantiate_msg(),
+            sender in arb_addr(),
+            blank_contract_name in r"\s*", // TODO: What is more conventional for regex strings, `r"\s+"` or `"\\s+"`?
+        ) {
+            let mut deps = mock_dependencies(&[]);
+
+            let mut invalid_instantiate = valid_instantiate_msg.clone();
+            invalid_instantiate.contract_name = blank_contract_name;
+            let response = instantiate_contract(deps.as_mut(), mock_env(), mock_info(sender.as_str(), &[]), invalid_instantiate);
+            prop_assert!(response.is_err(), "instantiation with invalid input unexpectedly produced no error");
+            let response = response.unwrap_err();
+            match response {
+                ContractError::InvalidInstantiation { message } => {
+                    prop_assert!(message.contains("contract_name value was empty"))
+                },
+                // TODO: How to check that error is of the type we want (ContractError::InvalidRequest)
+                // without early panicking or doing `prop_assert(false, "message we want")`?
+                error => prop_assert!(false, "instantation error was of an unexpected type: [{}]", error),
+            }
+        }
     }
 }

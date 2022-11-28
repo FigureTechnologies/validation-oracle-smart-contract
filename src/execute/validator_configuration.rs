@@ -81,7 +81,7 @@ pub fn update_existing_validator_configuration(
         .to_err();
     }
     match request.maybe_get_new_validation_costs() {
-        Some(_) => {} // TODO: Figure out how we can check that the new costs are different without macro hell (thanks cosmwasm)
+        Some(_) => {} // TODO: Figure out a feasible way to check that the new costs are different without macro hell (thanks cosmwasm)
         None => {
             return ContractError::InvalidRequest {
                 message:

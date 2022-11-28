@@ -148,3 +148,35 @@ pub fn may_get_validation_definition<S: Into<String>>(
         .may_load(storage, key.into().as_bytes())
         .unwrap_or(None)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{get_validation_definition, insert_validation_definition};
+    use crate::test::arbitrary::arb_validation_definition;
+
+    use proptest::{prop_assert, prop_assert_eq, proptest};
+    use provwasm_mocks::mock_dependencies;
+
+    proptest! {
+        #[test] // TODO: Should test fns be pub?
+        fn store_and_retrieve_validation_definition_with_valid_data(validation_definition in arb_validation_definition(None)) {
+            let mut deps = mock_dependencies(&[]);
+
+            let result = insert_validation_definition(deps.as_mut().storage, &validation_definition);
+            prop_assert!(result.is_ok(), "inserting validation definition produced an error");
+
+            let retrieved = get_validation_definition(&deps.storage, validation_definition.storage_key());
+            prop_assert!(retrieved.is_ok(), "retrieving validation definition produced an error");
+            let retrieved = retrieved.unwrap();
+
+            prop_assert_eq!(
+                validation_definition.get_validation_type(),
+                retrieved.get_validation_type()
+            );
+            prop_assert_eq!(
+                validation_definition.maybe_get_display_name(),
+                retrieved.maybe_get_display_name()
+            );
+        }
+    }
+}
