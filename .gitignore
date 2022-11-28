@@ -3,4 +3,4 @@
 /artifacts
 /schema
 ## Test report output from cargo2junit
-results.xml
+test-results.xml
