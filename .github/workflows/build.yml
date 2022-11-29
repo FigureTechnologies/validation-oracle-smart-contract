@@ -101,11 +101,12 @@ jobs:
           out-type: Xml
           args: '--ignore-config --ignore-tests'
 
-      - uses: codecov/codecov-action@v3
+      - name: Upload code coverage to Codecov
+        uses: codecov/codecov-action@v3
         with:
           files: cobertura.xml
           flags: unittests
-          fail_ci_if_error: false
+          fail_ci_if_error: true
           verbose: true
 
       - name: Publish code coverage summary to PR
