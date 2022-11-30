@@ -103,17 +103,11 @@ jobs:
 
       - name: Upload code coverage to Codecov
         uses: codecov/codecov-action@v3
+        if: env.RUN_CODE_COVERAGE
         with:
           files: cobertura.xml
           flags: unittests
           fail_ci_if_error: true
           verbose: true
-
-      - name: Publish code coverage summary to PR
-        uses: marocchino/sticky-pull-request-comment@v2.3.0
-        if: env.RUN_CODE_COVERAGE && github.event_name == 'pull_request'
-        with:
-          recreate: false
-          path: code-coverage-results.md
 
   # TODO: Add job for publishing Rustdocs to GitHub

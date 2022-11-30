@@ -152,14 +152,18 @@ pub fn may_get_validation_definition<S: Into<String>>(
 #[cfg(test)]
 mod tests {
     use super::{get_validation_definition, insert_validation_definition};
-    use crate::test::arbitrary::arb_validation_definition;
-
+    use crate::{
+        storage::validation_definition::update_validation_definition,
+        test::arbitrary::arb_validation_definition,
+    };
+    use proptest::option::of as option_of;
+    use proptest::prelude::any;
     use proptest::{prop_assert, prop_assert_eq, proptest};
     use provwasm_mocks::mock_dependencies;
 
     proptest! {
         #[test] // TODO: Should test fns be pub?
-        fn store_and_retrieve_validation_definition_with_valid_data(validation_definition in arb_validation_definition(None)) {
+        fn store_and_retrieve_validation_definition(validation_definition in arb_validation_definition(None)) {
             let mut deps = mock_dependencies(&[]);
 
             let result = insert_validation_definition(deps.as_mut().storage, &validation_definition);
@@ -176,6 +180,62 @@ mod tests {
             prop_assert_eq!(
                 validation_definition.maybe_get_display_name(),
                 retrieved.maybe_get_display_name()
+            );
+            prop_assert_eq!(
+                validation_definition.enabled,
+                retrieved.enabled
+            );
+        }
+
+        #[test]
+        fn store_update_and_retrieve_validation_definition(
+            validation_definition in arb_validation_definition(None),
+            new_display_name in option_of(".+"),
+            new_enabled in any::<bool>(),
+        ) {
+            let mut deps = mock_dependencies(&[]);
+
+            let result = insert_validation_definition(deps.as_mut().storage, &validation_definition);
+            prop_assert!(result.is_ok(), "inserting validation definition produced an error");
+
+            let retrieved = get_validation_definition(&deps.storage, validation_definition.storage_key());
+            prop_assert!(retrieved.is_ok(), "retrieving unmodified validation definition produced an error");
+            let retrieved = retrieved.unwrap();
+
+            prop_assert_eq!(
+                validation_definition.get_validation_type(),
+                retrieved.get_validation_type()
+            );
+            prop_assert_eq!(
+                validation_definition.maybe_get_display_name(),
+                retrieved.maybe_get_display_name()
+            );
+            prop_assert_eq!(
+                validation_definition.enabled,
+                retrieved.enabled
+            );
+
+            let mut modified_validation_definition = retrieved;
+            modified_validation_definition.display_name = new_display_name;
+            modified_validation_definition.enabled = new_enabled;
+            let result = update_validation_definition(deps.as_mut().storage, &modified_validation_definition);
+            prop_assert!(result.is_ok(), "updating validation definition produced an error");
+
+            let retrieved = get_validation_definition(&deps.storage, modified_validation_definition.storage_key());
+            prop_assert!(retrieved.is_ok(), "retrieving modified validation definition produced an error");
+            let retrieved = retrieved.unwrap();
+
+            prop_assert_eq!(
+                modified_validation_definition.get_validation_type(),
+                retrieved.get_validation_type()
+            );
+            prop_assert_eq!(
+                modified_validation_definition.maybe_get_display_name(),
+                retrieved.maybe_get_display_name()
+            );
+            prop_assert_eq!(
+                modified_validation_definition.enabled,
+                retrieved.enabled
             );
         }
     }

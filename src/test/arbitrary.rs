@@ -60,14 +60,22 @@ prop_compose! {
 }
 
 prop_compose! {
+    pub fn arb_validation_type()(validation_type in r"\S+") -> String {
+        // TODO: Improve regex, see below
+        validation_type
+    }
+}
+
+prop_compose! {
     pub fn arb_contract_bind_name()(bind_name in r"\S+") -> String {
+        // TODO: Improve regex, see below
         bind_name
     }
 }
 
 prop_compose! {
     pub fn arb_validation_definition_bind_name()(_contract_bind_name in arb_contract_bind_name()) -> String {
-        todo!("must implement regex for requirements here: https://docs.provenance.io/modules/name-module#normalization")
+        todo!("remove arb parameters, implement regex for requirements here: https://docs.provenance.io/modules/name-module#normalization")
     }
 }
 
@@ -105,8 +113,8 @@ prop_compose! {
 
 prop_compose! {
     pub fn arb_validation_definition(enabled: Option<bool>)(
-        validation_type in ".+",
-        display_name in option_of(".+"),
+        validation_type in arb_validation_type(),
+        display_name in option_of(".+"), // TODO: Improve these .+ regexes to ensure that there is at least one non-whitespace character
         random_enabled in any::<bool>(),
     ) -> ValidationDefinition {
         ValidationDefinition {
