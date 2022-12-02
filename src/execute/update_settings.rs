@@ -44,7 +44,7 @@ fn validate_settings_update(msg: &SettingsUpdate) -> Result<(), ContractError> {
     let mut errors = vec![];
     if let Some(ref new_admin_address) = msg.new_admin_address {
         if new_admin_address.is_empty() {
-            errors.push("new_admin_address was empty");
+            errors.push("new_admin_address was empty".to_string());
         }
     }
     if !errors.is_empty() {

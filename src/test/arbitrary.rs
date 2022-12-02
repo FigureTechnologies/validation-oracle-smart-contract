@@ -1,6 +1,8 @@
 use crate::storage::contract_info::ContractInfo;
 use crate::types::core::msg::InstantiateMsg;
+use crate::types::entity::EntityDetail;
 use crate::types::request::validation_definition::ValidationDefinitionCreationRequest;
+use crate::types::validation_cost::ValidationCost;
 use crate::types::validation_definition::ValidationDefinition;
 use crate::util::constants::NHASH;
 
@@ -55,6 +57,40 @@ prop_compose! {
                 contract_version: random_contract_version,
                 create_request_nhash_fee,
             }
+        }
+    }
+}
+
+prop_compose! {
+    pub fn arb_entity(address: Option<Addr>)(
+        random_address in arb_addr(),
+        name in option_of(".+"),
+        description in option_of(".+"),
+        home_url in option_of(".+"),
+        source_url in option_of(".+"),
+    ) -> EntityDetail {
+        EntityDetail {
+            address: match &address {
+                Some(value) => value.clone(),
+                None => random_address,
+            },
+            name,
+            description,
+            home_url,
+            source_url
+        }
+    }
+}
+
+prop_compose! {
+    pub fn arb_validation_cost(address: Option<Addr>)(
+        fee in arb_coin(),
+        destination in arb_entity(address),
+    ) -> ValidationCost {
+        ValidationCost {
+            amount: fee.amount,
+            denom: fee.denom,
+            destination
         }
     }
 }
@@ -120,10 +156,7 @@ prop_compose! {
         ValidationDefinition {
             validation_type,
             display_name,
-            enabled: match enabled {
-                Some(value) => value,
-                None => random_enabled,
-            },
+            enabled: enabled.unwrap_or(random_enabled),
         }
     }
 }

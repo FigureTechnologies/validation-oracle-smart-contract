@@ -61,10 +61,10 @@ pub fn instantiate_contract(
 fn validate_instantiate_msg(msg: &InstantiateMsg) -> ContractResult<()> {
     let mut errors = vec![];
     if msg.bind_name.trim().is_empty() {
-        errors.push("bind_name value was empty");
+        errors.push("bind_name value was empty".to_string());
     }
     if msg.contract_name.trim().is_empty() {
-        errors.push("contract_name value was empty");
+        errors.push("contract_name value was empty".to_string());
     }
     if !errors.is_empty() {
         ContractError::InvalidInstantiation {
@@ -80,12 +80,13 @@ fn validate_instantiate_msg(msg: &InstantiateMsg) -> ContractResult<()> {
 mod tests {
     use crate::{
         instantiate::instantiate_contract,
+        storage::contract_info::get_contract_info,
         test::{
             arbitrary::{arb_addr, arb_coin, arb_instantiate_msg},
             helpers::single_attribute_for_key,
         },
         types::core::error::ContractError,
-        util::constants::EVENT_TYPE_KEY,
+        util::constants::{CONTRACT_INFO_KEY, EVENT_TYPE_KEY},
     };
 
     use cosmwasm_std::testing::{mock_env, mock_info};
@@ -99,7 +100,7 @@ mod tests {
 
             let response = instantiate_contract(deps.as_mut(), mock_env(), mock_info(sender.as_str(), &[]), instantiate_msg);
             // TODO: Verify if interpolation is needed in message or if the shrunken test output is sufficient
-            prop_assert!(response.is_ok(), "instantiation with valid input produced an error");
+            prop_assert!(response.is_ok(), "instantiation with valid input produced an error: {}", response.unwrap_err());
             let response = response.unwrap();
 
             prop_assert_eq!(
@@ -111,6 +112,14 @@ mod tests {
                 "instantiate_contract",
                 single_attribute_for_key(&response, EVENT_TYPE_KEY),
                 "the proper event type should be emitted",
+            );
+            let result = get_contract_info(deps.as_ref().storage); // TODO: Which is better, `deps.as_ref().storage` or `&deps.storage`?
+            prop_assert!(result.is_ok(), "retrieving contract with valid input produced an error: {}", result.unwrap_err());
+            let contract_info = result.unwrap();
+            prop_assert_eq!(
+                format!("{:?}", contract_info),
+                single_attribute_for_key(&response, CONTRACT_INFO_KEY),
+                "the new contract info should be emitted",
             );
         }
 

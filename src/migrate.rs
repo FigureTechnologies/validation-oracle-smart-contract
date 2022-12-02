@@ -9,6 +9,7 @@ use cosmwasm_std::{to_binary, Response};
 use result_extensions::ResultExtensions;
 use semver::Version;
 
+// TODO: Consider how operations like binding & unbinding names must be made resilient to migrations
 // TODO: The below is likely an inaccurate and incomplete implementation of migrations.
 /// The main entrypoint function for running a code migration.  Referred to in the [contract file](crate::contract).
 ///

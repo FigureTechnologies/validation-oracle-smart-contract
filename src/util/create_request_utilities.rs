@@ -46,13 +46,13 @@ pub fn form_validation_request(
 pub fn validate_request_order(request_order: &ValidationRequestOrder) -> Result<(), ContractError> {
     let mut errors = vec![];
     if request_order.id.is_empty() {
-        errors.push("request order is missing ID");
+        errors.push("request order is missing ID".to_string());
     }
     if request_order.owner.to_string().is_empty() {
-        errors.push("request order is missing owner");
+        errors.push("request order is missing owner".to_string());
     }
     if request_order.scopes.is_empty() {
-        errors.push("request order is missing a scope");
+        errors.push("request order is missing a scope".to_string());
     }
     if !errors.is_empty() {
         ContractError::InvalidRequest {

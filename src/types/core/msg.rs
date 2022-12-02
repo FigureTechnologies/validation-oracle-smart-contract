@@ -2,7 +2,9 @@ use crate::types::{
     entity::EntityDetail,
     request::{
         settings_update::SettingsUpdate,
-        validation_definition::ValidationDefinitionCreationRequest,
+        validation_definition::{
+            ValidationDefinitionCreationRequest, ValidationDefinitionUpdateRequest,
+        },
         validation_request::ValidationRequest,
         validator_configuration::{
             ValidatorConfigurationCreationRequest, ValidatorConfigurationUpdateRequest,
@@ -33,8 +35,12 @@ pub enum ExecuteMsg {
         // TODO: Worth the effort of supporting single JSON body to create if its by contract admin anyway? (Answer: probably NOT)
         request: ValidationDefinitionCreationRequest,
     },
-    //UpdateValidationDefinition,
-    //DeleteValidationDefinition,
+    UpdateValidationDefinition {
+        request: ValidationDefinitionUpdateRequest,
+    },
+    DeleteValidationDefinition {
+        validation_type: String,
+    },
     RequestValidation {
         request: ValidationRequest,
     },

@@ -23,7 +23,10 @@ pub enum EventType {
     UpdateEntity,
     /// Occurs when the contract is [executed](crate::contract::execute) to
     /// [create a validation definition](crate::execute::validation_definition::create_new_validation_definition).
-    AddValidationDefiniton,
+    AddValidationDefinition,
+    /// Occurs when the contract is [executed](crate::contract::execute) to
+    /// [update a validation definition](crate::execute::validation_definition::update_existing_validation_definition).
+    UpdateValidationDefinition,
     /// Occurs when the contract is [executed](crate::contract::execute) to
     /// [create a validator configuration](crate::execute::validator_configuration::create_new_validator_configuration).
     AddValidatorConfiguration,
@@ -46,7 +49,8 @@ impl Into<String> for EventType {
             EventType::MigrateContract => "migrate_contract",
             EventType::AddEntity => "add_entity",
             EventType::UpdateEntity => "update_entity",
-            EventType::AddValidationDefiniton => "add_validation_definition",
+            EventType::AddValidationDefinition => "add_validation_definition",
+            EventType::UpdateValidationDefinition => "update_validation_definition",
             EventType::AddValidatorConfiguration => "add_validator_configuration",
             EventType::UpdateValidatorConfiguration => "update_validator_configuration",
             EventType::AddValidationRequest => "create_validation_request",
@@ -302,7 +306,7 @@ mod tests {
 
     #[test]
     fn test_response_consumption() {
-        let attributes = EventAttributes::new(EventType::AddValidationDefiniton)
+        let attributes = EventAttributes::new(EventType::AddValidationDefinition)
             .set_asset_type("asset type")
             .set_validation_type("validation type")
             .set_results_scope_address("results scope address")

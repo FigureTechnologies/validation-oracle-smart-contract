@@ -96,7 +96,7 @@ pub fn update_validation_definition(
 /// * `storage` A mutable reference to the contract's internal storage.
 /// * `definition` The validation definition to store.
 /// * `old_definition`  The validation definition being replaced, if it exists.
-fn store_validation_definition(
+pub fn store_validation_definition(
     storage: &mut dyn Storage,
     definition: &ValidationDefinition,
     old_definition: Option<&ValidationDefinition>,

@@ -6,6 +6,7 @@ use crate::{
     storage::contract_info::{get_contract_info, ContractInfo},
     types::{
         core::error::ContractError, entity::EntityDetail,
+        validation_definition::ValidationDefinition,
         validator_configuration::ValidatorConfiguration,
     },
 };
@@ -155,7 +156,48 @@ pub fn get_entity_update(old: &EntityDetail, new: &EntityDetail) -> EventAdditio
     changes
 }
 
-/// Outputs the difference between two [ValidatorConfiguration](ValidatorConfiguration)s as an
+/// Outputs the difference between two [ValidationDefinition]s as an
+/// [EventAdditionalMetadata] that can be appended to a [Response](cosmwasm_std::Response).
+///
+/// # Parameters
+/// * `old` The former version of the entity.
+/// * `new` The new version of the entity.
+pub fn get_validation_definition_update(
+    old: &ValidationDefinition,
+    new: &ValidationDefinition,
+) -> EventAdditionalMetadata {
+    let mut changes = EventAdditionalMetadata::new();
+    if old.validation_type != new.validation_type {
+        changes.add_metadata("old_validation_type", old.validation_type.to_string());
+        changes.add_metadata("new_validation_type", new.validation_type.to_string());
+    }
+    match (old.display_name.as_deref(), new.display_name.as_deref()) {
+        (None, None) => {}
+        (None, Some(new_display_name)) => {
+            changes.add_metadata("new_display_name", new_display_name);
+        }
+        (Some(old_display_name), None) => {
+            changes.add_metadata("old_display_name", old_display_name);
+        }
+        (Some(old_display_name), Some(new_display_name)) => {
+            if old_display_name != new_display_name {
+                changes.add_metadata("old_display_name", old_display_name);
+                changes.add_metadata("new_display_name", new_display_name);
+            }
+        }
+    }
+    match (old.enabled, new.enabled) {
+        // TODO: What would be ideal to set for the sake of an event stream listener?
+        (false, true) => changes.add_metadata("enabled", "true"),
+        // TODO: What would be ideal to set for the sake of an event stream listener?
+        (true, false) => changes.add_metadata("disabled", "true"),
+        (true, true) => {}
+        (false, false) => {}
+    }
+    changes
+}
+
+/// Outputs the difference between two [ValidatorConfiguration]s as an
 /// [EventAdditionalMetadata] that can be appended to a [Response](cosmwasm_std::Response).
 ///
 /// # Parameters

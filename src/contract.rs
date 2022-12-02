@@ -1,7 +1,10 @@
 use crate::execute::entity::{create_new_entity, update_existing_entity};
 use crate::execute::request::create_request_for_validation;
 use crate::execute::update_settings::update_settings;
-use crate::execute::validation_definition::create_new_validation_definition;
+use crate::execute::validation_definition::{
+    create_new_validation_definition, delete_validation_definition,
+    update_existing_validation_definition,
+};
 use crate::execute::validator_configuration::{
     create_new_validator_configuration, update_existing_validator_configuration,
 };
@@ -62,6 +65,12 @@ pub fn execute(deps: DepsMutC, env: Env, info: MessageInfo, msg: ExecuteMsg) -> 
     match msg {
         ExecuteMsg::CreateValidationDefinition { request } => {
             create_new_validation_definition(deps, env, info, request)
+        }
+        ExecuteMsg::UpdateValidationDefinition { request } => {
+            update_existing_validation_definition(deps, env, info, request)
+        }
+        ExecuteMsg::DeleteValidationDefinition { validation_type } => {
+            delete_validation_definition(deps, env, info, validation_type)
         }
         ExecuteMsg::CreateEntity { entity } => create_new_entity(deps, env, info, entity),
         ExecuteMsg::UpdateEntity { entity } => update_existing_entity(deps, env, info, entity),

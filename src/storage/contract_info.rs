@@ -78,7 +78,7 @@ mod tests {
 
     proptest! {
         #[test]
-        fn set_and_get_contract_info_with_valid_data(contract_info in arb_contract_info(true)) { // TODO: Change to individual parameters
+        fn set_and_get_contract_info_with_valid_data(contract_info in arb_contract_info(true)) { // TODO: Change to individual parameters?
             let mut deps = mock_dependencies(&[]);
 
             let result = set_contract_info(

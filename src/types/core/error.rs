@@ -27,6 +27,7 @@ pub enum ContractError {
         message: String,
     },
 
+    // TODO: Consolidate usage of InvalidRequest versus RecordNotFound for update operations
     /// A generic error returned from a contract entrypoint when a more specific & applicable
     /// variant for indicating some problem with the request input is not defined.
     #[error("Invalid request: {message}")]
@@ -55,7 +56,7 @@ pub enum ContractError {
     /// An error that occurs when a unique key is violated during an attempt to
     /// add new data to the contract's internal [storage](crate::storage).
     #[error("Existing record found: {explanation}")]
-    RecordAlreadyExists { explanation: String },
+    RecordAlreadyExists { explanation: String }, // TODO: Probably just remove this type in favor of InvalidRequest
 
     /// An error returned when a mandatory data lookup is performed on the contract's
     /// internal [storage](crate::storage), but the required value is not found.
