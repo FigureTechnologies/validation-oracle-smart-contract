@@ -5,7 +5,7 @@ use crate::types::{
         validation_definition::{
             ValidationDefinitionCreationRequest, ValidationDefinitionUpdateRequest,
         },
-        validation_request::ValidationRequest,
+        validation_request::{ValidationRequest, ValidationRequestUpdate},
         validator_configuration::{
             ValidatorConfigurationCreationRequest, ValidatorConfigurationUpdateRequest,
         },
@@ -44,6 +44,12 @@ pub enum ExecuteMsg {
     RequestValidation {
         request: ValidationRequest,
     },
+    UpdateValidationRequest {
+        request: ValidationRequestUpdate,
+    },
+    DeleteValidationRequest {
+        id: String,
+    },
     //AcceptValidationRequest
     //SubmitValidationResults
     // TODO: Think about possible flows of updating a definition and updating a configuration
@@ -73,5 +79,5 @@ pub enum QueryMsg {
 
 #[cw_serde]
 pub enum MigrateMsg {
-    ContractUpgrade {}, // TODO: Flesh out later
+    ContractUpgrade {}, // TODO: Rename, flesh out later
 }

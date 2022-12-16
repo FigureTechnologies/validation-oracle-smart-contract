@@ -75,7 +75,7 @@ pub fn update_existing_validator_configuration(
     let state = get_contract_info(deps.storage)?;
     if info.sender != request.validator && info.sender != state.admin {
         return ContractError::Unauthorized {
-            reason: "Must be the contract admin to create a validator configuration for a different address"
+            reason: "must be the contract admin to create a validator configuration for a different address"
                 .to_string(),
         }
         .to_err();
@@ -85,7 +85,7 @@ pub fn update_existing_validator_configuration(
         None => {
             return ContractError::InvalidRequest {
                 message:
-                    "At least one change to the existing validator configuration must be specified"
+                    "at least one change to the existing validator configuration must be specified"
                         .to_string(),
             }
             .to_err();
@@ -94,7 +94,7 @@ pub fn update_existing_validator_configuration(
     let old_configuration = get_validator_configuration(deps.storage, request.storage_key())
         .map_err(|err| ContractError::InvalidRequest {
             message: format!(
-                "No validator configuration for [{}] of validation type [{}] exists: {:?}",
+                "no validator configuration for [{}] of validation type [{}] exists: {:?}",
                 request.validator, request.validation_type, err
             ),
         })?;

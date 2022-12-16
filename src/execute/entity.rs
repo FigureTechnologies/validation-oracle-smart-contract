@@ -20,7 +20,7 @@ pub fn create_new_entity(
     let state = get_contract_info(deps.storage)?;
     if info.sender != entity.address && info.sender != state.admin {
         return ContractError::Unauthorized {
-            reason: "Must be the contract admin to create an entity with a different address"
+            reason: "must be the contract admin to create an entity with a different address"
                 .to_string(),
         }
         .to_err();
@@ -42,7 +42,7 @@ pub fn update_existing_entity(
 ) -> EntryPointResponse {
     let state = get_contract_info(deps.storage)?;
     if info.sender != entity.address && info.sender != state.admin {
-        return ContractError::Unauthorized { reason: "Must be the contract admin to update the details of an entity with a different address".to_string() }.to_err();
+        return ContractError::Unauthorized { reason: "must be the contract admin to update the details of an entity with a different address".to_string() }.to_err();
     }
     let old_entity = &update_entity(deps.storage, &entity)?;
     Response::new()

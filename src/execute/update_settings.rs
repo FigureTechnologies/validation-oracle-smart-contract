@@ -17,7 +17,7 @@ pub fn update_settings(
     let mut contract_info = get_contract_info(deps.storage)?;
     if info.sender != contract_info.admin {
         return ContractError::Unauthorized {
-            reason: "Must be the contract admin".to_string(),
+            reason: "must be the contract admin".to_string(),
         }
         .to_err();
     }

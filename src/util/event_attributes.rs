@@ -28,14 +28,23 @@ pub enum EventType {
     /// [update a validation definition](crate::execute::validation_definition::update_existing_validation_definition).
     UpdateValidationDefinition,
     /// Occurs when the contract is [executed](crate::contract::execute) to
+    /// [delete a validation definition](crate::execute::validation_definition::delete_validation_definition).
+    DeleteValidationDefinition,
+    /// Occurs when the contract is [executed](crate::contract::execute) to
     /// [create a validator configuration](crate::execute::validator_configuration::create_new_validator_configuration).
     AddValidatorConfiguration,
     /// Occurs when the contract is [executed](crate::contract::execute) to
     /// [update a validator configuration](crate::execute::validator_configuration::update_existing_validator_configuration).
     UpdateValidatorConfiguration,
     /// Occurs when the contract is [executed](crate::contract::execute) to
-    /// [create a validation request](crate::execute::request::create_request_for_validation).
+    /// [create a validation request](crate::execute::validation_request::create_request_for_validation).
     AddValidationRequest,
+    /// Occurs when the contract is [executed](crate::contract::execute) to
+    /// [update a validation request](crate::execute::validation_request::update_request_for_validation).
+    UpdateValidationRequest,
+    /// Occurs when the contract is [executed](crate::contract::execute) to
+    /// [delete a validation request](crate::execute::validation_request::delete_request_for_validation).
+    DeleteValidationRequest,
     /// Occurs when the contract is [executed](crate::contract::execute) to
     /// [update its settings](crate::execute::update_settings::update_settings).
     UpdateSettings,
@@ -51,9 +60,12 @@ impl Into<String> for EventType {
             EventType::UpdateEntity => "update_entity",
             EventType::AddValidationDefinition => "add_validation_definition",
             EventType::UpdateValidationDefinition => "update_validation_definition",
+            EventType::DeleteValidationDefinition => "delete_validation_definition",
             EventType::AddValidatorConfiguration => "add_validator_configuration",
             EventType::UpdateValidatorConfiguration => "update_validator_configuration",
             EventType::AddValidationRequest => "create_validation_request",
+            EventType::UpdateValidationRequest => "update_validation_request",
+            EventType::DeleteValidationRequest => "delete_validation_request",
             EventType::UpdateSettings => "update_settings",
         }
         .into()

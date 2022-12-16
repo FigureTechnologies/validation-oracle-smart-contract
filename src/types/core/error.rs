@@ -3,9 +3,10 @@ use thiserror::Error;
 
 /// An enumeration of all the possible errors that may be returned from any of
 /// the contract's [entrypoints](crate::contract).
+// TODO: Rename parameters to clearly indicate if their values should be capitalized or not
 #[derive(Error, Debug)]
 pub enum ContractError {
-    // TODO: Consolidate usage of ExistingId and RecordAlreadyExists for insertion executions to use only one of the two across the board
+    // TODO: Consolidate usage of ExistingId and RecordAlreadyExists to correctly use either of the two across the board
     /// A generic error returned from attempting a contract operation
     /// which requires a unique identifier with a duplicate.
     #[error("Cannot use [{id_type}] with id [{id}]. One with that id already exists")]
@@ -60,7 +61,7 @@ pub enum ContractError {
 
     /// An error returned when a mandatory data lookup is performed on the contract's
     /// internal [storage](crate::storage), but the required value is not found.
-    #[error("Record not found: {explanation}")]
+    #[error("{explanation}")]
     RecordNotFound { explanation: String },
 
     /// A wrapper for a [semver Error](semver::Error).

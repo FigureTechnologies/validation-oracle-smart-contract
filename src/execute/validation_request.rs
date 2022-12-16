@@ -1,6 +1,12 @@
 use crate::{
-    storage::request::{get_request, insert_request},
-    types::{core::error::ContractError, request::validation_request::ValidationRequest},
+    storage::{
+        contract_info::get_contract_info,
+        request::{delete_request_by_id, get_request, insert_request},
+    },
+    types::{
+        core::error::ContractError,
+        request::validation_request::{ValidationRequest, ValidationRequestUpdate},
+    },
     util::{
         aliases::{DepsMutC, EntryPointResponse},
         create_request_utilities::{form_validation_request, ValidationRequestCreationResponse},
@@ -39,7 +45,7 @@ pub fn create_request_for_validation(
     let mut response = Response::new()
         .add_messages(messages)
         .add_attributes(EventAttributes::new(EventType::AddValidationRequest))
-        .set_data(to_binary(&request_order)?);
+        .set_data(to_binary(&request_order)?); // TODO: Add set_data calls to other entry point responses
     if let Some(request_fee_msg) = request_fee_msg {
         response = response
             .add_attribute(
@@ -49,4 +55,45 @@ pub fn create_request_for_validation(
             .add_message(request_fee_msg);
     }
     response.to_ok()
+}
+
+pub fn update_request_for_validation(
+    deps: DepsMutC,
+    _env: Env,
+    _info: MessageInfo,
+    _request: ValidationRequestUpdate,
+) -> EntryPointResponse {
+    // TODO: Complete details
+    // Validate the request
+    let _state = get_contract_info(deps.storage)?;
+    // TODO: Further validation that request actually changes something
+    // if info.sender != existing_request.owner && info.sender != state.admin {
+    //     return ContractError::Unauthorized {
+    //         reason: "Must be the contract admin to update a validation request owned by a different address"
+    //             .to_string(),
+    //     }
+    //     .to_err();
+    // }
+    // Update the existing request
+    // TODO: Update the existing request
+    // Create and return a response
+    Response::new()
+        .add_attributes(EventAttributes::new(EventType::UpdateValidationRequest))
+        .to_ok()
+}
+
+pub fn delete_request_for_validation(
+    deps: DepsMutC,
+    _env: Env,
+    _info: MessageInfo,
+    id: String,
+) -> EntryPointResponse {
+    // TODO: Complete
+    // Validate the request
+    // Delete the definition
+    delete_request_by_id(deps.storage, id)?;
+    // Construct the response
+    Response::new()
+        .add_attributes(EventAttributes::new(EventType::DeleteValidationRequest))
+        .to_ok()
 }

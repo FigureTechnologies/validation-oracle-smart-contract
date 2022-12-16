@@ -58,12 +58,15 @@ impl ValidationDefinitionUpdateRequest {
     pub fn old_storage_key(&self) -> String {
         self.current_validation_type.to_lowercase()
     }
-    // TODO: How to return an Option<&str> here?
+    // TODO: Learn if this logic is ideal or not
     pub fn maybe_get_new_storage_key(&self) -> Option<String> {
         self.new_validation_type.clone().map(|s| s.to_lowercase())
     }
     pub fn get_new_storage_key(&self) -> String {
         self.new_validation_type.clone().unwrap().to_lowercase()
+    }
+    pub fn get_storage_key_description() -> String {
+        String::from("validation type")
     }
 }
 impl From<ValidationDefinitionUpdateRequest> for ValidationDefinition {

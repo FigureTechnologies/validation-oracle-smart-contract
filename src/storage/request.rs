@@ -96,7 +96,7 @@ pub fn update_request(
     } else {
         ContractError::RecordNotFound {
             explanation: format!(
-                "attempted to replace request with id [{}] in storage, but no request with that id existed",
+                "attempted to replace validation request with id [{}] in storage, but no request with that id existed",
                 &request.id
             ),
         }
@@ -157,7 +157,7 @@ pub fn get_request<S: Into<String>>(
         .load(storage, id.as_bytes())
         .map_err(|e| ContractError::RecordNotFound {
             explanation: format!(
-                "failed to find ValidationRequestOrder with id [{}]: {:?}",
+                "failed to find validation request with id [{}]: {:?}",
                 id, e
             ),
         })
@@ -271,7 +271,7 @@ pub fn delete_request_by_id<S: Into<String>>(
         .remove(storage, id.as_bytes())
         .map_err(|e| ContractError::StorageError {
             message: format!(
-                "failed to remove ValidationRequestOrder with id [{}]: {:?}",
+                "failed to remove validation request with id [{}]: {:?}",
                 id, e
             ),
         })

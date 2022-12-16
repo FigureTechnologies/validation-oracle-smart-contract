@@ -52,8 +52,8 @@ pub fn insert_validation_definition(
     if let Ok(existing_definition) = state.load(storage, key.as_bytes()) {
         ContractError::RecordAlreadyExists {
             explanation: format!(
-                "a definition with validation type [{}] already exists",
-                existing_definition.validation_type
+                "a validation definition with {} [{}] already exists",
+                ValidationDefinition::get_storage_key_description(), existing_definition.validation_type
             ),
         }
         .to_err()
@@ -79,8 +79,8 @@ pub fn update_validation_definition(
     } else {
         ContractError::RecordNotFound {
             explanation: format!(
-                "attempted to replace definition with validation type [{}] in storage, but no definition with that type exists",
-                &definition.storage_key()
+                "Attempted to replace validation definition with {} [{}] in storage, but no definition with that type exists",
+                ValidationDefinition::get_storage_key_description(), &definition.storage_key()
             ),
         }
         .to_err()
@@ -149,6 +149,39 @@ pub fn may_get_validation_definition<S: Into<String>>(
         .unwrap_or(None)
 }
 
+/// Deletes a validation definition by its key, returning a [Result]
+/// reflecting whether a matching definition was found or not.
+///
+/// # Parameters
+///
+/// * `storage` A mutable reference to the contract's internal storage.
+/// * `key` The key of the validation definition to search for.
+pub fn delete_validation_definition_by_key<S: Into<String>>(
+    storage: &mut dyn Storage,
+    key: S,
+) -> ContractResult<ValidationDefinition> {
+    let state = definitions();
+    let key = key.into();
+    if let Ok(existing_definition) = state.load(storage, key.as_bytes()) {
+        state
+            .remove(storage, key.as_bytes())
+            .map_err(|e| ContractError::StorageError {
+                message: format!(
+                    "failed to remove validation definition with {} [{}]: {:?}",
+                    ValidationDefinition::get_storage_key_description(), key, e
+                ),
+            })?;
+        existing_definition.to_ok()
+    } else {
+        ContractError::RecordNotFound {
+            explanation: format!(
+                "Attempted to delete validation definition with {} [{}] in storage, but no definition with that type exists",
+                ValidationDefinition::get_storage_key_description(), key
+            ),
+        }
+        .to_err()
+    }
+}
 #[cfg(test)]
 mod tests {
     use super::{get_validation_definition, insert_validation_definition};

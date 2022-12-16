@@ -4,12 +4,18 @@ use crate::types::entity::EntityDetail;
 use crate::types::request::validation_definition::ValidationDefinitionCreationRequest;
 use crate::types::validation_cost::ValidationCost;
 use crate::types::validation_definition::ValidationDefinition;
+use crate::types::validator_configuration::ValidatorConfiguration;
 use crate::util::constants::NHASH;
 
 use cosmwasm_std::{Addr, Coin, Uint128};
+use proptest::collection::vec;
 use proptest::option::of as option_of;
 use proptest::prelude::any;
 use proptest::prop_compose;
+use proptest::sample::size_range;
+use proptest::strategy::{Just, Strategy};
+
+const STRING_WITH_NON_WHITESPACE_CHARACTER: &str = r".*\S+.*";
 
 prop_compose! {
     // TODO: Add random bech32 generation
@@ -127,8 +133,8 @@ prop_compose! {
 
 prop_compose! {
     pub fn arb_validation_definition_creation_request(enabled: Option<bool>, bind_name: Option<bool>)(
-        validation_type in ".+",
-        display_name in option_of(".+"),
+        validation_type in STRING_WITH_NON_WHITESPACE_CHARACTER,
+        display_name in option_of(STRING_WITH_NON_WHITESPACE_CHARACTER),
         random_enabled in option_of(any::<bool>()),
         random_bind_name in option_of(any::<bool>()),
     ) -> ValidationDefinitionCreationRequest {
@@ -150,7 +156,7 @@ prop_compose! {
 prop_compose! {
     pub fn arb_validation_definition(enabled: Option<bool>)(
         validation_type in arb_validation_type(),
-        display_name in option_of(".+"), // TODO: Improve these .+ regexes to ensure that there is at least one non-whitespace character
+        display_name in option_of(STRING_WITH_NON_WHITESPACE_CHARACTER),
         random_enabled in any::<bool>(),
     ) -> ValidationDefinition {
         ValidationDefinition {
@@ -158,5 +164,24 @@ prop_compose! {
             display_name,
             enabled: enabled.unwrap_or(random_enabled),
         }
+    }
+}
+
+prop_compose! {
+    pub fn arb_validator_configuration(address: Option<Addr>)(
+        validation_type in arb_validation_type(),
+        // (validator, validation_costs) in match address {
+        //     Some(fixed_address) => (Just(fixed_address.clone()), vec(arb_validation_cost(Some(fixed_address)), size_range(1..100))),
+        //     None => arb_addr().prop_flat_map(|addr| (Just(addr), vec(arb_validation_cost(Some(addr)), size_range(1..100)))),
+        // },
+        // TODO: Below is a terrible workaround due to the above not working for some reason
+        (validator, validation_costs) in arb_addr().prop_flat_map(move |arb_addr|
+            match address.clone() {
+                Some(fixed_address) => Just(fixed_address),
+                None => Just(arb_addr),
+            }
+        ).prop_flat_map(|arb_addr| (Just(arb_addr.clone()), vec(arb_validation_cost(Some(arb_addr)), size_range(1..100)),)),
+    ) -> ValidatorConfiguration {
+        ValidatorConfiguration { validation_type, validation_costs, validator }
     }
 }

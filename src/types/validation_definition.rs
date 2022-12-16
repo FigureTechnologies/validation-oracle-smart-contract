@@ -28,6 +28,9 @@ impl ValidationDefinition {
     pub fn storage_key(&self) -> String {
         self.validation_type.to_lowercase()
     }
+    pub fn get_storage_key_description() -> String {
+        String::from("validation type")
+    }
 }
 
 #[cfg(test)]

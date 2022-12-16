@@ -62,6 +62,56 @@ impl ValidationRequestOrder {
     }
 }
 
+/// An update to a request for validation to be performed which can be
+/// submitted in a contract [execution](crate::contract::execute).
+#[cw_serde]
+pub struct ValidationRequestUpdate {
+    /// The ID of the existing validation request to update. It must be
+    /// unique among the contract instance's [ValidationRequestOrder]s.
+    pub current_id: String,
+    /// An optional new ID to use for the validation request. It must be unique among the contract instance's [ValidationRequestOrder]s.
+    /// If omitted, the ID of the existing validation request will not be changed.
+    pub new_id: Option<String>,
+    /// An optional list of Provenance scopes, each denoted by its bech32 address, that are expected to be validated in order for
+    /// this request to be fulfilled. If omitted, the scopes listed on the existing validation request will not be replaced.
+    pub new_scopes: Option<Vec<Addr>>,
+    /// An optional list of new bech32 addresses corresponding to parties which are permitted to fulfill this request. If omitted,
+    /// the allowed validators listed on the existing validation request, whether empty or not, will not be replaced.
+    pub new_allowed_validators: Option<Vec<Addr>>,
+    /// An optional new quote the requestor is offering in exchange for completion of the request. If omitted,
+    /// the quote listed on the existing validation request, whether empty or not, will not be replaced.
+    pub new_quote: Option<Vec<Coin>>,
+}
+impl ValidationRequestUpdate {
+    pub fn get_current_id(&self) -> &str {
+        &self.current_id
+    }
+    pub fn maybe_get_new_id(&self) -> Option<&str> {
+        self.new_id.as_deref()
+    }
+    pub fn get_new_id(&self) -> &str {
+        self.new_id.as_deref().unwrap()
+    }
+    pub fn maybe_get_new_scopes(&self) -> Option<&[Addr]> {
+        self.new_scopes.as_deref()
+    }
+    pub fn get_new_scopes(&self) -> &[Addr] {
+        self.new_scopes.as_deref().unwrap()
+    }
+    pub fn maybe_get_new_allowed_validators(&self) -> Option<&[Addr]> {
+        self.new_allowed_validators.as_deref()
+    }
+    pub fn get_new_allowed_validators(&self) -> &[Addr] {
+        self.new_allowed_validators.as_deref().unwrap()
+    }
+    pub fn maybe_get_new_quote(&self) -> Option<&[Coin]> {
+        self.new_quote.as_deref()
+    }
+    pub fn get_new_quote(&self) -> &[Coin] {
+        self.new_quote.as_deref().unwrap()
+    }
+}
+
 /// The status of a [ValidationRequestOrder].
 #[cw_serde]
 pub enum ValidationRequestStatus {
