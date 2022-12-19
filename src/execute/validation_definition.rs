@@ -123,7 +123,7 @@ pub fn update_existing_validation_definition(
             EventAttributes::new(EventType::UpdateValidationDefinition)
                 .set_validation_type(
                     // TODO: Should this be the old type or the new type????!? May need to expand what key-values consist of, perhaps in same way as refactor of EventAdditionalMetadata
-                    &request
+                    request
                         .new_validation_type
                         .unwrap_or(request.current_validation_type),
                 )

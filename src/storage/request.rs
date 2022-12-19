@@ -113,7 +113,7 @@ pub fn update_request(
 /// * `storage` A mutable reference to the contract's internal storage.
 /// * `request` The validation request to store.
 /// * `old_request` The validation request being replaced, if it exists.
-fn store_request(
+pub fn store_request(
     storage: &mut dyn Storage,
     request: &ValidationRequestOrder,
     old_request: Option<&ValidationRequestOrder>,

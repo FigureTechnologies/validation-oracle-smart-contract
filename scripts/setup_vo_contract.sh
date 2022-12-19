@@ -118,7 +118,7 @@ echo "$WASM_STORE"
 provenanced query wasm list-code -o json | jq
 
 ### Note the value of the code_id for our contract from the above output
-VO_CODE_ID=$(echo "$WASM_STORE" | jq -r '.logs[] | select(.msg_index == 0) | .events[] | select(.type == "store_code") | .attributes[0].value')
+VO_CODE_ID=$(echo "$WASM_STORE" | jq -r '.logs[] | select(.msg_index == 0) | .events[] | select(.type == "store_code") | .attributes[] | select(.key == "code_id") | .value')
 
 ### Instantiate the contract
 provenanced tx wasm instantiate "$VO_CODE_ID" \

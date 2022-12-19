@@ -72,8 +72,8 @@ impl Into<String> for EventType {
     }
 }
 impl EventType {
-    /// Utilizes the implementation of Into<String> to automatically derive the event name.  This
-    /// allows an invocation without an explicit type declaration.
+    /// Utilizes the implementation of `Into<String>` to automatically derive the event name.
+    /// This allows an invocation without an explicit type declaration.
     pub fn event_name(self) -> String {
         self.into()
     }

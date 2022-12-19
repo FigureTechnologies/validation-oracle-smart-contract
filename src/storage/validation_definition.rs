@@ -53,7 +53,8 @@ pub fn insert_validation_definition(
         ContractError::RecordAlreadyExists {
             explanation: format!(
                 "a validation definition with {} [{}] already exists",
-                ValidationDefinition::get_storage_key_description(), existing_definition.validation_type
+                ValidationDefinition::get_storage_key_description(),
+                existing_definition.validation_type
             ),
         }
         .to_err()
@@ -168,7 +169,9 @@ pub fn delete_validation_definition_by_key<S: Into<String>>(
             .map_err(|e| ContractError::StorageError {
                 message: format!(
                     "failed to remove validation definition with {} [{}]: {:?}",
-                    ValidationDefinition::get_storage_key_description(), key, e
+                    ValidationDefinition::get_storage_key_description(),
+                    key,
+                    e
                 ),
             })?;
         existing_definition.to_ok()

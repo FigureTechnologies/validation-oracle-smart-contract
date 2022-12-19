@@ -16,7 +16,7 @@ dev: build fmt lint test schema docs
 
 .PHONY: clean
 clean:
-	@rm -rf artifacts/ schema/
+	rm -rf artifacts/ schema/
 	@cargo clean
 
 .PHONY: fmt

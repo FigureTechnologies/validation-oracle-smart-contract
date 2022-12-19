@@ -112,6 +112,16 @@ impl ValidationRequestUpdate {
     }
 }
 
+/// The type of operation being performed on a [ValidationRequestOrder]
+/// as a result of a contract [execution](crate::contract::execute).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ValidationRequestType {
+    /// Denotes that a new [ValidationRequestOrder] is being created.
+    New,
+    /// Denotes that an existing [ValidationRequestOrder] is being updated.
+    Update,
+}
+
 /// The status of a [ValidationRequestOrder].
 #[cw_serde]
 pub enum ValidationRequestStatus {

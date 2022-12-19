@@ -1,6 +1,8 @@
 use super::aliases::DepsMutC;
 use super::fees::generate_contract_fee_msg;
-use crate::types::request::validation_request::{ValidationRequestOrder, ValidationRequestStatus};
+use crate::types::request::validation_request::{
+    ValidationRequestOrder, ValidationRequestStatus, ValidationRequestType,
+};
 use crate::types::{core::error::ContractError, request::validation_request::ValidationRequest};
 
 use cosmwasm_std::{CosmosMsg, Env, MessageInfo};
@@ -18,13 +20,17 @@ pub fn form_validation_request(
     env: &Env,
     info: &MessageInfo,
     request: ValidationRequest,
+    request_type: ValidationRequestType,
 ) -> Result<ValidationRequestCreationResponse, ContractError> {
-    let request_fee_msg = generate_contract_fee_msg(
-        "validation request creation",
-        &deps.as_ref(),
-        env.contract.address.clone(),
-        |c| c.create_request_nhash_fee.u128(),
-    )?;
+    let request_fee_msg = match request_type {
+        ValidationRequestType::New => generate_contract_fee_msg(
+            "validation request creation",
+            &deps.as_ref(),
+            env.contract.address.clone(),
+            |c| c.create_request_nhash_fee.u128(),
+        )?,
+        ValidationRequestType::Update => None,
+    };
     let messages = vec![];
     let request_order = ValidationRequestOrder {
         id: request.id,

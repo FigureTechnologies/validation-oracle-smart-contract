@@ -6,6 +6,7 @@ use crate::{
     storage::contract_info::{get_contract_info, ContractInfo},
     types::{
         core::error::ContractError, entity::EntityDetail,
+        request::validation_request::ValidationRequestOrder,
         validation_definition::ValidationDefinition,
         validator_configuration::ValidatorConfiguration,
     },
@@ -221,6 +222,33 @@ pub fn get_validator_configuration_update(
         changes.add_metadata("old_validation_costs", old.validation_costs);
         changes.add_metadata("new_validation_costs", new.validation_costs);
     }*/
+    changes
+}
+
+/// Outputs the difference between two [ValidationRequestOrder]s as an [EventAdditionalMetadata]
+/// that can be appended to a [Response](cosmwasm_std::Response).
+///
+/// # Parameters
+/// * `old` The former version of the request.
+/// * `new` The new version of the request.
+pub fn get_validation_request_update(
+    old: &ValidationRequestOrder,
+    new: &ValidationRequestOrder,
+) -> EventAdditionalMetadata {
+    let mut changes = EventAdditionalMetadata::new();
+    if old.id != new.id {
+        changes.add_metadata("old_id", old.id.to_string());
+        changes.add_metadata("new_id", new.id.to_string());
+    }
+    if old.owner != new.owner {
+        changes.add_metadata("old_owner", old.owner.to_string());
+        changes.add_metadata("new_owner", new.owner.to_string());
+    }
+    // TODO: Determine best way to check for changes in array fields
+    if old.status != new.status {
+        changes.add_metadata("old_status", old.status.to_string());
+        changes.add_metadata("new_status", new.status.to_string());
+    }
     changes
 }
 
