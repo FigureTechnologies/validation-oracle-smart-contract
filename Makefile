@@ -1,16 +1,18 @@
 #!/usr/bin/make -f
+MAKEFLAGS += -rR
+
 CONTAINER_RUNTIME := $(shell which docker 2>/dev/null || which podman 2>/dev/null)
 
 ### Use cosmwasm/rust-optimizer-arm64 on M1 Macs (https://hub.docker.com/r/cosmwasm/rust-optimizer-arm64)
 OPTIMIZER_IMAGE := cosmwasm/rust-optimizer
-### 0.12.9 is the latest tag (https://hub.docker.com/r/cosmwasm/rust-optimizer/tags)
-OPTIMIZER_DOCKER_TAG := 0.12.9
+### 0.12.10 is the latest tag (https://hub.docker.com/r/cosmwasm/rust-optimizer/tags)
+OPTIMIZER_DOCKER_TAG := 0.12.10
 
 .PHONY: all
-all: clean fmt lint test schema docs optimize
+all: clean build fmt lint test schema docs optimize
 
 .PHONY: dev
-dev: fmt lint test schema
+dev: build fmt lint test schema docs
 
 .PHONY: clean
 clean:
@@ -32,6 +34,11 @@ build:
 .PHONY: test
 test:
 	@cargo test
+
+.PHONY: test-report
+test-report:
+	@cargo install cargo2junit
+	@cargo test -- -Z unstable-options --format json --report-time | cargo2junit > test-results.xml
 
 .PHONY: docs
 docs:

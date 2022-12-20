@@ -10,81 +10,104 @@ on:
       linting:
         type: boolean
         description: Run the linter
-        required: false
         default: true
       runCodeCoverage:
         type: boolean
         description: Run code coverage
-        required: false
         default: true
 
-env:
-  CARGO_TERM_COLOR: always
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  check:
-    name: Check Project Integrity
-    runs-on: [ self-hosted, linux ]
-    env:
-      RUN_CODE_COVERAGE:
-        ${{
-          github.event.inputs.runCodeCoverage == true ||
-          github.event.pull_request.draft == false ||
-          github.event_name == 'push'
-        }}
-      RUN_LINTING:
-        ${{
-          github.event.inputs.linting == true ||
-          github.event.pull_request.draft == false
-        }}
+  linting:
+    name: Linting
+    runs-on: ubuntu-latest
+    if: github.event.inputs.linting || !github.event.pull_request.draft
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Toolchain
+      - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           default: true
           components: clippy, rustfmt
 
-      - name: Cargo Format
+      - name: Cargo — Format
         uses: actions-rs/cargo@v1
-        if: env.RUN_LINTING == 'true'
         with:
           command: fmt
           args: --all -- --check
 
-      - name: Cargo Clippy
+      - name: Cargo — Clippy
         uses: actions-rs/cargo@v1
-        if: env.RUN_LINTING == 'true'
         with:
           command: clippy
 
-      - name: Cargo Tarpaulin XML Report
-        uses: actions-rs/tarpaulin@v0.1
-        if: env.RUN_CODE_COVERAGE == 'true'
+      - name: Cargo — Documentation # TODO: Move to new job that publishes the docs to GitHub Pages
+        uses: actions-rs/cargo@v1
         with:
-          version: '0.19.1'
+          command: doc
+
+  check:
+    name: Check Project Integrity
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TERM_COLOR: always
+      RUN_CODE_COVERAGE:
+        ${{
+          github.event.inputs.runCodeCoverage ||
+          github.event.pull_request.draft ||
+          github.event_name == 'push'
+        }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+
+      - name: Install test results converter
+        uses: actions-rs/install@v0.1
+        with:
+          crate: cargo2junit
+          version: latest
+          use-tool-cache: true
+
+      - name: Cargo — Run tests
+        run: |
+          cargo test -- -Z unstable-options --format json --report-time | cargo2junit > test-results.xml
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          check_name: "Test Results"
+          pull_request_build: "commit"
+          report_individual_runs: true
+          files: "test-results.xml"
+
+      - name: Cargo — Check code coverage
+        uses: actions-rs/tarpaulin@v0.1
+        if: env.RUN_CODE_COVERAGE
+        with:
+          version: '0.22.0'
           out-type: Xml
           args: '--ignore-config --ignore-tests'
 
-      # TODO: Add test report publishing
-
-      - name: Generate code coverage summary
-        uses: irongut/CodeCoverageSummary@v1.3.0
-        if: env.RUN_CODE_COVERAGE == 'true'
+      - name: Upload code coverage to Codecov
+        uses: codecov/codecov-action@v3
+        if: env.RUN_CODE_COVERAGE
         with:
-          badge: true
-          filename: cobertura.xml
-          format: markdown
-          indicators: false
-          output: both
-          thresholds: '60 75'
+          files: cobertura.xml
+          flags: unittests
+          fail_ci_if_error: true
+          verbose: true
 
-      - name: Publish code coverage summary to PR
-        uses: marocchino/sticky-pull-request-comment@v2.3.0
-        if: env.RUN_CODE_COVERAGE == 'true' && github.event_name == 'pull_request'
-        with:
-          recreate: true
-          path: code-coverage-results.md
+  # TODO: Add job for publishing Rustdocs to GitHub

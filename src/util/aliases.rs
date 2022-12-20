@@ -1,4 +1,5 @@
 use crate::types::core::error::ContractError;
+
 use cosmwasm_std::{Binary, Deps, DepsMut, Response};
 use provwasm_std::{ProvenanceMsg, ProvenanceQuery};
 
