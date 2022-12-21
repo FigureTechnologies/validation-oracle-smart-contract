@@ -52,12 +52,13 @@ autolabeler:
       - '/update/i'
 exclude-contributors:
   - 'figure-renovate'
+  - 'figure-renovate[bot]'
 replacers:
   - search: '/\[sc-(\d+)\]/gi'
     replace: '[[sc-$1](https://app.shortcut.com/figure/story/$1)]'
   - search: '/\[ch(\d+)\]/gi'
     replace: '[[sc-$1](https://app.shortcut.com/figure/story/$1)]'
-  - search: '/@figure-renovate$/gim'
+  - search: '/@figure-renovate(\[bot\])?$/gim'
     replace: 'by [Renovate](https://github.com/renovatebot/renovate)'
 template: |
   # Changelog
