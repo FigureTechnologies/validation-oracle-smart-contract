@@ -1,32 +1,83 @@
-use crate::types::request::{
-    settings_update::SettingsUpdate, validation_request::ValidationRequest,
+use crate::types::{
+    entity::EntityDetail,
+    request::{
+        settings_update::SettingsUpdate,
+        validation_definition::{
+            ValidationDefinitionCreationRequest, ValidationDefinitionUpdateRequest,
+        },
+        validation_request::{ValidationRequest, ValidationRequestUpdate},
+        validator_configuration::{
+            ValidatorConfigurationCreationRequest, ValidatorConfigurationUpdateRequest,
+        },
+    },
 };
-use cosmwasm_std::Uint128;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
+use cosmwasm_schema::cw_serde;
+use cosmwasm_std::{Addr, Uint128};
+
+#[cw_serde]
 pub struct InstantiateMsg {
     pub bind_name: String,
     pub contract_name: String,
     pub create_request_nhash_fee: Uint128,
+    // TODO: Add Option<Vec<ValidationDefinitionCreationRequest>> field?
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
 pub enum ExecuteMsg {
-    RequestValidation { request: ValidationRequest },
-    UpdateSettings { update: SettingsUpdate },
+    CreateEntity {
+        entity: EntityDetail,
+    },
+    UpdateEntity {
+        entity: EntityDetail,
+    },
+    CreateValidationDefinition {
+        // TODO: Worth the effort of supporting single JSON body to create if its by contract admin anyway? (Answer: probably NOT)
+        request: ValidationDefinitionCreationRequest,
+    },
+    UpdateValidationDefinition {
+        request: ValidationDefinitionUpdateRequest,
+    },
+    DeleteValidationDefinition {
+        validation_type: String,
+    },
+    RequestValidation {
+        request: ValidationRequest,
+    },
+    UpdateValidationRequest {
+        request: ValidationRequestUpdate,
+    },
+    DeleteValidationRequest {
+        id: String,
+    },
+    //AcceptValidationRequest
+    //SubmitValidationResults
+    // TODO: Think about possible flows of updating a definition and updating a configuration
+    CreateValidatorConfiguration {
+        request: ValidatorConfigurationCreationRequest,
+    },
+    UpdateValidatorConfiguration {
+        request: ValidatorConfigurationUpdateRequest,
+    },
+    //DeleteValidatorConfiguration,
+    UpdateSettings {
+        update: SettingsUpdate,
+    },
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
 pub enum QueryMsg {
-    GetRequestOrder { id: String },
+    QueryEntityByAddress { address: Addr },
+    QueryValidationDefinitionByType { r#type: String },
+    QueryValidationRequestById { id: String },
+    QueryValidationRequestByOwner { owner: Addr },
+    QueryValidationRequestByValidator { validator: Addr },
+    //QueryValidationResultsBy...
+    //QueryValidatorConfigurationBy...
+    QueryContractInfo {},
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
 pub enum MigrateMsg {
-    ContractUpgrade {}, // TODO: Flesh out later
+    ContractUpgrade {}, // TODO: Rename, flesh out later
 }

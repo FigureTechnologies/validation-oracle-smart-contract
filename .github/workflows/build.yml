@@ -1,0 +1,113 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    types: [ synchronize, opened, reopened, ready_for_review, converted_to_draft ]
+  workflow_dispatch:
+    inputs:
+      linting:
+        type: boolean
+        description: Run the linter
+        default: true
+      runCodeCoverage:
+        type: boolean
+        description: Run code coverage
+        default: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linting:
+    name: Linting
+    runs-on: ubuntu-latest
+    if: github.event.inputs.linting || !github.event.pull_request.draft
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+          components: clippy, rustfmt
+
+      - name: Cargo — Format
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+
+      - name: Cargo — Clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+
+      - name: Cargo — Documentation # TODO: Move to new job that publishes the docs to GitHub Pages
+        uses: actions-rs/cargo@v1
+        with:
+          command: doc
+
+  check:
+    name: Check Project Integrity
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TERM_COLOR: always
+      RUN_CODE_COVERAGE:
+        ${{
+          github.event.inputs.runCodeCoverage ||
+          github.event.pull_request.draft ||
+          github.event_name == 'push'
+        }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+
+      - name: Install test results converter
+        uses: actions-rs/install@v0.1
+        with:
+          crate: cargo2junit
+          version: latest
+          use-tool-cache: true
+
+      - name: Cargo — Run tests
+        run: |
+          cargo test -- -Z unstable-options --format json --report-time | cargo2junit > test-results.xml
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          check_name: "Test Results"
+          pull_request_build: "commit"
+          report_individual_runs: true
+          files: "test-results.xml"
+
+      - name: Cargo — Check code coverage
+        uses: actions-rs/tarpaulin@v0.1
+        if: env.RUN_CODE_COVERAGE
+        with:
+          version: '0.22.0'
+          out-type: Xml
+          args: '--ignore-config --ignore-tests'
+
+      - name: Upload code coverage to Codecov
+        uses: codecov/codecov-action@v3
+        if: env.RUN_CODE_COVERAGE
+        with:
+          files: cobertura.xml
+          flags: unittests
+          fail_ci_if_error: true
+          verbose: true
+
+  # TODO: Add job for publishing Rustdocs to GitHub
