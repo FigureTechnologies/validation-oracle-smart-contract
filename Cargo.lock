@@ -536,9 +536,9 @@ dependencies = [
 
 [[package]]
 name = "provwasm-std"
-version = "1.1.1"
+version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "484f032a11686a33faeaee060dcc8c995b61f6f9000a9745fcfa929108eb2500"
+checksum = "a78a7ba9df5e8fb865e441a02c92dc473df67d1cb88aaeb07bdc4a3beb37d593"
 dependencies = [
  "cosmwasm-std",
  "schemars",
