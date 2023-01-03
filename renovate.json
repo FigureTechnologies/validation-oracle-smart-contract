@@ -2,5 +2,20 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>FigureTechnologies/renovate-config"
+  ],
+  "packageRules": [
+    {
+      "groupName": "provwasm",
+      "matchPackagePrefixes": [
+        "provwasm"
+      ]
+    },
+    {
+      "groupName": "cosmos",
+      "matchPackagePrefixes": [
+        "cosmwasm",
+        "cw-"
+      ]
+    }
   ]
 }
