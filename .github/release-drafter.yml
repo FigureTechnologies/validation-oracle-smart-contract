@@ -48,8 +48,15 @@ autolabeler:
     title:
       - '/docs/i'
   - label: 'dependencies'
+    branch:
+      - '/update\/.+/'
     title:
       - '/update/i'
+  - label: 'chore'
+    branch:
+      - '/chore\/.+/'
+    title:
+      - '/chore/i'
 exclude-contributors:
   - 'figure-renovate'
   - 'figure-renovate[bot]'
