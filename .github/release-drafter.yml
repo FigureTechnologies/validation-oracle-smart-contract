@@ -48,20 +48,34 @@ autolabeler:
     title:
       - '/docs/i'
   - label: 'dependencies'
+    branch:
+      - '/update\/.+/'
     title:
       - '/update/i'
+  - label: 'chore'
+    branch:
+      - '/chore\/.+/'
+    title:
+      - '/chore/i'
+exclude-contributors:
+  - 'figure-renovate'
+  - 'figure-renovate[bot]'
 replacers:
   - search: '/\[sc-(\d+)\]/gi'
     replace: '[[sc-$1](https://app.shortcut.com/figure/story/$1)]'
   - search: '/\[ch(\d+)\]/gi'
     replace: '[[sc-$1](https://app.shortcut.com/figure/story/$1)]'
+  - search: '/@figure-renovate(\[bot\])?$/gim'
+    replace: 'by [Renovate](https://github.com/renovatebot/renovate)'
 template: |
   # Changelog
   $CHANGES
   # Notes
+  ## Compatible Versions
+  - [Provenance vProvenanceVersionHere](https://github.com/provenance-io/provenance/blob/vProvenanceVersionHere/docs/Building.md)
+  ## Required Updates
+  The relevant PRs and all work that needs to be done for this release to succeed (like updating dependencies) should be listed here
   ## Contributors
   $CONTRIBUTORS
-  ## Required Updates
-  The relevant PRs and all work that needs to be done for this release to succeed should be listed here
   ## Other
   Other notes

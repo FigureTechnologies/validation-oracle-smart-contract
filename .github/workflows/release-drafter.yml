@@ -11,6 +11,8 @@ on:
   # For autolabeling PRs from forks
   pull_request_target:
     types: [ synchronize, opened, reopened, ready_for_review ]
+  # For manually running the autolabeler
+  workflow_dispatch:
 
 permissions:
   contents: read
