@@ -1,18 +1,24 @@
-use crate::types::{
-    entity::EntityDetail,
-    request::{
-        settings_update::SettingsUpdate,
-        validation_definition::{
-            ValidationDefinitionCreationRequest, ValidationDefinitionUpdateRequest,
+use crate::{
+    storage::contract_info::ContractInfo,
+    types::{
+        entity::EntityDetail,
+        request::{
+            settings_update::SettingsUpdate,
+            validation_definition::{
+                ValidationDefinitionCreationRequest, ValidationDefinitionUpdateRequest,
+            },
+            validation_request::{
+                ValidationRequest, ValidationRequestOrder, ValidationRequestUpdate,
+            },
+            validator_configuration::{
+                ValidatorConfigurationCreationRequest, ValidatorConfigurationUpdateRequest,
+            },
         },
-        validation_request::{ValidationRequest, ValidationRequestUpdate},
-        validator_configuration::{
-            ValidatorConfigurationCreationRequest, ValidatorConfigurationUpdateRequest,
-        },
+        validation_definition::ValidationDefinition,
     },
-};
+}; // TODO: These unused import warnings may be a Rust bug
 
-use cosmwasm_schema::cw_serde;
+use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::{Addr, Uint128};
 
 #[cw_serde]
@@ -66,14 +72,21 @@ pub enum ExecuteMsg {
 }
 
 #[cw_serde]
+#[derive(QueryResponses)]
 pub enum QueryMsg {
+    #[returns(Option<EntityDetail>)]
     QueryEntityByAddress { address: Addr },
+    #[returns(Option<ValidationDefinition>)]
     QueryValidationDefinitionByType { r#type: String },
+    #[returns(Option<ValidationRequestOrder>)]
     QueryValidationRequestById { id: String },
+    #[returns(Vec<ValidationRequestOrder>)]
     QueryValidationRequestByOwner { owner: Addr },
+    #[returns(Vec<ValidationRequestOrder>)]
     QueryValidationRequestByValidator { validator: Addr },
     //QueryValidationResultsBy...
     //QueryValidatorConfigurationBy...
+    #[returns(ContractInfo)]
     QueryContractInfo {},
 }
 
