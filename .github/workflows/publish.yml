@@ -1,0 +1,100 @@
+name: Upload Documentation
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      targetTag:
+        type: string
+        description: The tag of the GitHub release to update
+        required: true
+      publishFiles:
+        type: boolean
+        description: Upload WASM & JSON schema to GitHub release
+        default: true
+      updateDocsSite:
+        type: boolean
+        description: Upload documentation to GitHub Pages
+        default: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  publish-files:
+    name: Publish Contract WASM & JSON schema
+    runs-on: ubuntu-latest
+    if: github.event.inputs.publishFiles || github.event_name == 'release'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Generate JSON schema
+        run: make schema
+
+      - name: Build & optimize WASM
+        run: make optimize
+
+      - name: Get release information
+        id: release_info
+        uses: cardinalby/git-get-release-action@1.2.4
+        if: github.event_name != 'release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag: ${{ github.event.inputs.targetTag }}
+
+      - name: Upload files to GitHub release
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          release_id: ${{ github.event_name == 'release' && github.event.release.id || steps.release_info.outputs.id }}
+          file: |
+            artifacts/asset_classification_smart_contract.wasm
+            artifacts/checksums.txt
+            schema/validation_oracle_smart_contract.json
+          overwrite: true
+
+  upload-docs:
+    name: Upload Documentation to GitHub Pages
+    runs-on: ubuntu-latest
+    if: github.event.inputs.updateDocsSite || (github.event_name == 'release' && !github.event.release.prerelease)
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install stable Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            default: true
+
+      - name: Cargo — Generate & check documentation
+        uses: actions-rs/cargo@v1
+        env:
+            RUSTDOCFLAGS: '-D warnings'
+        with:
+            command: doc
+
+      - name: Stage documentation
+        if: env.UPLOAD_TO_GITHUB_PAGES
+        run: |
+          # Add redirect page to inner doc index
+          echo "<meta http-equiv=\"refresh\" content=\"0; url=docs\">" >> ./target/doc/index.html
+          # Create doc deployment location
+          mkdir ./pages-files
+          # Move documentation to its configured location in settings
+          cp -r target/doc ./pages-files/docs
+
+      - name: Deploy documentation to GitHub Pages
+        if: env.UPLOAD_TO_GITHUB_PAGES
+        uses: JamesIves/github-pages-deploy-action@v4.4.1
+        with:
+          branch: github-pages-for-docs
+          folder: pages-files
