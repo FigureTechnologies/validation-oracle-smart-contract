@@ -10,9 +10,11 @@ on:
       linting:
         type: boolean
         description: Run the linter
+        default: false
       runCodeCoverage:
         type: boolean
         description: Run code coverage
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
