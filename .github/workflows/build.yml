@@ -10,11 +10,9 @@ on:
       linting:
         type: boolean
         description: Run the linter
-        default: true
       runCodeCoverage:
         type: boolean
         description: Run code coverage
-        default: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -27,7 +25,7 @@ jobs:
   linting:
     name: Linting
     runs-on: ubuntu-latest
-    if: github.event.inputs.linting || (github.event_name == 'pull_request' && !github.event.pull_request.draft)
+    if: github.event.inputs.linting || github.event_name == 'push' || (github.event_name == 'pull_request' && !github.event.pull_request.draft)
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
