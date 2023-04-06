@@ -1,0 +1,14 @@
+schema-version: v2
+dd-service: validation-oracle-smart-contract
+team: validation-oracle
+contacts:
+- type: slack
+  contact: https://figure-group.slack.com/archives/C02LYRG514G
+repos:
+- name: GitHub Repo
+  provider: github
+  url: https://github.com/FigureTechnologies/validation-oracle-smart-contract
+docs:
+- name: GitHub Team
+  provider: github
+  url: https://github.com/orgs/FigureTechnologies/teams/validation-oracle/members
