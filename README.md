@@ -17,8 +17,8 @@ _TODO: Add details on the data model, the assumptions it makes, and how the cont
 
 This project has been tested and confirmed to work with
 
-- [Rust](https://www.rust-lang.org/tools/install) 1.66.0
-- [Provenance](https://github.com/provenance-io/provenance/blob/main/docs/Building.md) 1.13.0
+- [Rust](https://www.rust-lang.org/tools/install) 1.66.1
+- [Provenance](https://github.com/provenance-io/provenance/blob/main/docs/Building.md) 1.13.1
   - [Go](https://go.dev/dl/) 1.19.3
 
 ### Running a Local Demo

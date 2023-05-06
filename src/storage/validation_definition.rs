@@ -185,6 +185,7 @@ pub fn delete_validation_definition_by_key<S: Into<String>>(
         .to_err()
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::{get_validation_definition, insert_validation_definition};
