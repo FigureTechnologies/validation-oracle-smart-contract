@@ -5,14 +5,9 @@
   ],
   "packageRules": [
     {
-      "groupName": "provwasm",
+      "groupName": "provwasm & cosmwasm",
       "matchPackagePrefixes": [
-        "provwasm"
-      ]
-    },
-    {
-      "groupName": "cosmos",
-      "matchPackagePrefixes": [
+        "provwasm",
         "cosmwasm",
         "cw-"
       ]
