@@ -5,8 +5,8 @@ CONTAINER_RUNTIME := $(shell which docker 2>/dev/null || which podman 2>/dev/nul
 
 ### Use cosmwasm/rust-optimizer-arm64 on M1 Macs (https://hub.docker.com/r/cosmwasm/rust-optimizer-arm64)
 OPTIMIZER_IMAGE := cosmwasm/rust-optimizer
-### 0.12.10 is the latest tag (https://hub.docker.com/r/cosmwasm/rust-optimizer/tags)
-OPTIMIZER_DOCKER_TAG := 0.12.10
+### See tags here: https://hub.docker.com/r/cosmwasm/rust-optimizer/tags
+OPTIMIZER_DOCKER_TAG ?= 0.12.11
 
 .PHONY: all
 all: clean build fmt lint test schema docs optimize
