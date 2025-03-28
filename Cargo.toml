@@ -31,4 +31,4 @@ thiserror = "=1.0.38"
 bech32 = "=0.9.1" # TODO: Use this
 proptest = "=1.0.0"
 provwasm-mocks = "=1.1.2"
-uuid = { version = "=1.2.2", features = ["v4"] } # TODO: Use this
+uuid = { version = "=1.4.1", features = ["v4"] } # TODO: Use this
